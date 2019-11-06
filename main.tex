@@ -1,7 +1,9 @@
 \documentclass[openany]{book}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+\usepackage{amsmath}
 \usepackage[a4paper, total={6in, 8in}]{geometry}
+
 \renewcommand{\baselinestretch}{1.3}
 
 \title{Learning Depth and Visual Odometry From Light Fields \\
@@ -31,9 +33,130 @@ Another core objective of this thesis is to develop a pipeline that relies princ
 In this progress report we will first establish the conceptual groundwork that this thesis builds upon with a discussion surrounding the seminal texts that have shaped the state-of-the-art literature in visual odometry and depth estimation. In understanding those texts, we demonstrate that existing methods have yielded excellent results, whilst identifying that there is a substantial potential for improvement on state-of-the-art results using multi-view imaging devices. 
 
 
-\chapter{Literature Survey}
+
+\chapter{Background}
+
+\section{Geometry in Computer Vision}
+
+The pixel is the building block of digital imagery. Thanks to our ability to fabricate advanced circuits on the scale of nanometers, digital camera sensors have become ubiquitous - making their way into all manner of consumer devices. Because the photodiodes in camera sensors are typically arranged on a 2D plane, most of our operations on digital images manipulate the 2D structures present in that pixel data. The question of how a 3 dimensional world comes to form an image on that series of photodiodes is one best explored from the perspective of projective geometry and linear algebra. 
+
+\subsection{The Pinhole Camera}
+
+The most basic kind of camera, the pinhole camera projects a 3D world point $(X, Y, Z)$ to a homogenous coordinate on a 2D plane $(u, v, w)$. This relationship is captured in the $3 \times 3$ camera intrinsics matrix, and is typically written as 
+
+\begin{equation}
+\begin{bmatrix}
+    u\\
+    v\\
+    w
+\end{bmatrix} = 
+\begin{bmatrix}
+    f_x & s & u_0 \\ 
+    0 & f_y  & v_0 \\ 
+    0 & 0 & 1 
+\end{bmatrix}
+\begin{bmatrix}
+    X \\
+    Y \\
+    Z
+\end{bmatrix}
+\end{equation}
+
+\begin{figure}[htbp]
+    \centering 
+    \includegraphics[width=4in]{images/pinhole.png}
+    \caption{The pinhole model describes how a light ray originating from world coordinate $P$ is received at pixel coordinate $(u, v)$. Equivalently, the pinhole model can be thought of as associating the light ray of elevation $\phi$ and azimuth $\theta$ with the specific pixel coordinate $(u, v)$. Since the relationship is a one-to-one mapping between ray directions and pixel coordinates, the inverse of the intrinsics matrix $K^{-1}$ associates each pixel with a corresponding ray direction.}
+\end{figure}
+
+The intrinsics matrix can alternatively be thought of as mapping ray directions to inhomogenous pixel coordinates:
+
+\begin{equation}
+    \begin{bmatrix}
+        u\\
+        v\\
+        1
+    \end{bmatrix} = 
+    \begin{bmatrix}
+        f_x & s & u_0 \\ 
+        0 & f_y  & v_0 \\ 
+        0 & 0 & 1 
+    \end{bmatrix}
+    \begin{bmatrix}
+        tan^{-1}(\theta) \\
+        tan^{-1}(\phi) \\
+        1
+    \end{bmatrix}
+    \end{equation}
+
+
+
+\subsection{Epipolar Geometry and the Fundamental Matrix}
+
+Epipolar geometry describes the relationship between two cameras, and imposes a set of constraints which makes it possible for us to draw meaningful geometric information when we have two views of the same scene. This relationship is encapsulated in a $3 \times 3$ matrix called the Fundamental matrix $F$. The culmination of the epipolar constraint is that any point in 3 dimensional space that appears at pixel $(u_1, v_1, 1)$ in one view and $(u_2, v_2, 1)$ in the second view must satisfy the relationship:
+
+\begin{equation}
+    \begin{bmatrix}
+        u_1, v_1, 1
+    \end{bmatrix}^T
+    F
+    \begin{bmatrix}
+        u_2, v_2, 1
+    \end{bmatrix}
+    = 0
+\end{equation}
+
+The Fundamental matrix thus describes the rotation and translation between two cameras up to scale. The constraint is easy to visualise, as shown in figure \ref{epipolarplane}. Any point projected from pixel coordinate $(u_1, v_1, 1)$ must lie on a line that forms by intersecting the epipolar plane with the imaging plane. 
+
+\begin{figure}
+    \includegraphics[width=2in]{images/blank.png}
+    \label{epipolarplane}
+\end{figure}
+
+
+\section{The 4D Light Field}
+Light field imaging has emerged as a powerful tool in computer vision for robotics, offering a rich higher-dimensional representation than what can be captured by conventional optics. The underlying principle used to describe the light field is the plenoptic function, a 7-dimensional mapping that assigns radiance values to the light rays at every position in space, in every orientation, at all wavelengths, throughout all of time \cite{ihrke2016lfprinciples}. \cite{adelson1991plenoptic} shows that this can be formally expressed as $L(x,y,z,\theta, \phi, \lambda, t)$, and measured in $W/m^2/sr/nm/s$. 
+With the addition of practical constraints however, the plenoptic function can be expressed more concisely as a parameterisation of 4 variables. 
+
+Pixels on camera sensors integrate the number of photons arriving at them over a finite period of time removing the temporal dimension, and each colour channel can be thought of as a monochromatic sampling of the light field, removing the spectral dimension. Additionally, and importantly, is the constraint that the radiance of light rays propagating through a vacuum do not change if samples are restricted to the convex hull of the scene, thus reducing the overall dimensionality of the plenoptic function by one parameter \cite{levoy1996lfrendering}. To illustrate this, one could think of the light rays leaving the inside of a bowl sat upright on a table. Many of those rays may only travel a small distance before being blocked by the inside of the bowl itself, meaning those rays will never be registered by any practical measurement device. As shown in figure \ref{convexhull} if we consider only the convex hull of the bowl however, we are required only to represent the value of the plenoptic function on the encapsulating surface of the object \cite{gortler1996lumigraph}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=2.5in]{images/2pp.png}
+    \includegraphics[width=0.3in]{images/blank.png}
+    \includegraphics[width=2.5in]{images/convexhull.png}
+    
+    \caption{Two plane parameterisation (left): the plenoptic function can be described by the radiance along a ray passing through two parallel planes. The free space assumption (right): if we consider only the bundle of rays leaving from the convex hull of the object at a particular instance in time, in a single colour channel, we can parameterise the light rays as a function of 4 variables rather than 7.}
+    
+    \label{convexhull}
+\end{figure}
+
+Also illustrated is a common convention for describing light rays in this 4 dimensional space called the two plane parameterisation. In this parameterisation, two parallel planes are used to fix both the position and orientation of each ray by fixing their points of intersection with two parallel planes. By convention, the plane closest to the scene it termed \textit{u, v} and the plane closest to the camera sensor is the \textit{s, t} plane.
+
+This 4D realisation of the light field originated as a model of rendering 3D computer graphics, one which shifted emphasis from notions of texture and geometric primitives to modeling the behaviour of light rays permeating space. Since then however, the conceptual framework of the light field has drawn a following of researchers at an intersecting region of signal processing, computer vision and robotics \cite{dansereau2014phd}. This notion of light field imaging finds a foothold in this thesis project through the utilisation of camera arrays, which are devices that sample multiple views of the same scene. Using a camera array is a simple method for acquiring a sparse sample of the light field, where the position of the camera determines \textit{(s,t)} while the location of the pixel determines \textit{(u, v)} \cite{yao2016camarray}. The images captured from a camera array are mapped easily to the 4D light field, and identifying corresponding pixels across images exposes a rich tapestry of geometric information about the scene. 
+
+
+\begin{figure}[tbp]
+    \centering
+    \includegraphics[width=4.5in]{images/robotcamera.jpg}
+    \caption{An example of a camera array mounted on a robotic arm. This camera array is configured as 17 sub-apertures arranged on a single plane in a cross-hair formation. Camera arrays sample several views of the same scene and are thus capable of acquiring a sparse sample of the light field. This is the camera that will be used throughout this thesis project.}
+    \label{cameraarray}
+    \vspace{1cm}
+    \includegraphics[width=1.6in]{images/epipolarimage.png}
+    \includegraphics[width=0.4in]{images/blank.png}
+    \includegraphics[width=3.5in]{images/fruitfocus.png}
+    \caption{Epipolar Plane Images (left): Shown as a slice of a volume, the images formed by dissecting the image in the \textit{s,u} and \textit{t,v} planes are characterised by sheared straight lines, with the grade of the slope encoding the amount of parallax experienced by a pixel at that \textit{u} or \textit{v} coordinate. Synthetic aperture focusing (right): taking the average of every image from the camera array yields an image where different parts are in focus depending on the alignments of the images.}
+    \label{epiplaneimg}
+\end{figure}
+
+
+One way that this geometric information can be easily visualised is by taking slices of the light field image in the \textit{s,u} or \textit{t, v} axes as shown in figure \ref{epiplaneimg}. While the idea of taking a 2D slice from the 4D image can seem complex, the task of generating a so called 'epipolar plane image' from a camera array is deceptively simple. Images captured from camera arrays can be stacked to form a solid volume, from which 2D slices can be sampled. Each of these slices yields an image characterised by sheared straight lines, encoding information about the geometry of the scene, including depth and occlusions \cite{bolles1987epiplane}. 
+
+The geometric information encoded in a light field sampling can alternatively be visualised by processing the image into a 'focal stack'. Focal stacks closely resemble images with shallow depth of field such as those that can be captured from a commercial DSLR camera. Light field focal stacks differ from focus in the optical sense however in that they are synthetic and can be recomputed after the image has been taken, effectively allowing control over the depth of field and focal depth in post-processing. Focal stacks can be computed from camera array images by layering images over one another and taking the average value for each pixel. The result is that parts of the scene that closely overlap appear in focus while areas with poor overlap create a 'bokeh' effect. More formally, if the relative pose of each camera is known, a specific focal stack for any desired depth can be computed by projecting each image onto the desired focal plane, and computing their average \cite{vaish2004parallax}.
+
+These representations of the light field will play an important role in this thesis project as we experiment with different methods for feeding light field images to the machine learning pipeline. An important consideration in any machine learning algorithm is the feature space - based on what particular inputs will the algorithm be making its decision? Raw images contain millions of measurements and thus represent an incredibly high-dimensional feature space for neural networks to process. Light field images are several times larger, and thus it is important that some form of dimensionality reduction is used to ease the training process. With the goal of investigating effective methods of feeding light fields to neural networks, this thesis will explore the use of three different light field formats as the entry point to the machine learning pipeline. The first two will be the focal stack, and epipolar plane image described above, interpreting the images as a 3 dimensional volume created by stacking 2 dimensional images on top of one another. The third will treat the light field as a 4 dimensional volume, requiring a 3D signal processing pipeline to fully take advantage of the dimensionality.
 
 \section{Machine Learning in Computer Vision}
+
 
 An oft-quoted anecdote in computer vision tells of MIT researcher Seymour Papert, who in 1966 assigned a summer project that sounded simple enough, namely to construct a 'visual system' that could describe what objects it saw by name \cite{papert1966vision}. While the regimes of computer vision have evolved substantially since 1966, many of the ideas, and challenges have persisted. This is embodied in the popularity of projects such as the ImageNet Large Scale Visual Recognition Challenge (ILSVRC) \cite{ilsvrc}, drawing researchers from institutions around the world. It was at the ILSVRC annual challenge where in 2012, a convolutional neural network achieved a top-5 error rate of 15.3\%, outperforming all previous submissions by 10.8\% \cite{krizhevsky2012alexnet}. Until 'AlexNet' in 2012, the competition subsisted of competitors introducing algorithms that produced marginal improvements year on year. Needless to say, an improvement of over 10\% made a big splash in computer vision, drawing attention to the powerful capabilities of deep learning.
 
@@ -52,19 +175,21 @@ Convolutional neural networks (CNN's) are similar to multilayer perceptrons, but
 
 CNN's are thus popular 'feature extractors' in computer vision - their ability to learn to respond to different types of stimuli mean that they have been used as a dimensionality downsampling tool, taking the millions of dimensions present in digital images  and compressing them to a feature space with a much smaller number of parameters. Closely related is the convolutional upsampling operation which performs the inverse - taking a feature space and learning to upsample that feature space into something meaningful \cite{long2014fcn}. This has given rise to a particular topology of CNN called the encoder-decoder architecture, which will be useful throughout this thesis. The encoder part of a CNN is composed of a series of convolutional down sampling operations - this can be thought of as finding an efficient compression of the information stored in the image. The decoder subsequently uses this compressed form of the information to extract some meaningful information about it. One example where this architecture has been used is in \cite{long2014fcn}, which outputs a classification for each pixel in the image. In this thesis, a fully convolutional encoder-decoder architecture will be used for a similar purpose, but rather than classifying each pixel into one of several categories, it will regress depth values for each pixel. 
 
+\chapter{Literature Survey}
+
 
 \section{Depth Estimation and Visual Odometry}
 
-Since the invention of the pinhole camera, most cameras have captured 2D representations of a 3D world, meaning information about physical structure is lost. With the addition of a second viewpoint however we can learn a little more about the shape of the scene as governed by epipolar geometry \cite{zisserman2004multiview}. Meanwhile, a video is a sequence of images, taken in very quick succession, and so one could think of video footage as a multi-view camera where each image is separated not only spatially but also temporally. Identifying the amount of motion between two temporal frames of the video camera is the goal of visual odometry, where one intuitive approach is to observe the direction of movement of each pixel between the pair of images. In practice, features such as SURF \cite{bay2008surf} or SIFT \cite{lowe2004sift} features are used to simplify the search for image correspondences. The essential matrix, which describes the relationship between two cameras in space can then be estimated using techniques such as the 5 or 8 point algorithm. 
 
-\subsection{The Monocular Approach}
+\subsection{Geometric Approaches}
+
+Since the invention of the pinhole camera, most cameras have captured 2D representations of a 3D world, meaning information about physical structure is lost. With the addition of a second viewpoint however we can learn a little more about the shape of the scene as governed by epipolar geometry \cite{zisserman2004multiview}. Meanwhile, a video is a sequence of images, taken in very quick succession, and so one could think of video footage as a multi-view camera where each image is separated not only spatially but also temporally. Identifying the amount of motion between two temporal frames of the video camera is the goal of visual odometry, where one intuitive approach is to observe the direction of movement of each pixel between the pair of images. In practice, features such as SURF \cite{bay2008surf} or SIFT \cite{lowe2004sift} features are used to simplify the search for image correspondences. The fundamental matrix, which describes the relationship between two cameras in space can then be estimated using techniques such as the 5 or 8 point algorithm. 
+
 Doing so monocularly however is problematic because with a single camera there is no way of concretely discerning the actual magnitude of the movement based on pixel data alone, meaning some kind of scale factor needs to be estimated based on characteristics of the image \cite{gakne2018scale, nister2004vo, zhou2016scale, zhou2019scale}. In fact, this scale ambiguity is often exploited by film makers - what appears as a sweeping shot of a vast landscape on the big screen is often modeled as a miniature film set in the studio. Because the image is monocular, there is no way to ground our measurements of scale in real world units, and so we resort to our imaginations and learned experiences to fill in the gaps. What \textit{is} preserved in these monocular setups however is the overall structure of the scene and motion of the camera - we may not know how large the object is or how far the camera has moved, but we \textit{can} compute the  shape of the object as well as the direction of camera motion. 
 
-\subsection{The Stereo Approach}
+Using a stereo pair of cameras with a known baseline however allows the scale ambiguity issue to be resolved. In the monocular approach, the fundamental matrix must be estimated to an unknown scale factor, however given two camera views of the same scene, features can be directly triangulated in 3D space. Corresponding these 3D points between the first and second pair of images allows the translation and rotation of the camera pair to be found by optimising a cost function to most closely match the two sets of 3D points. 
 
-
-\subsection{The Plenoptic Flow Approach}
-
+An alternative approach that utilises all of the pixel energy in the scene, takes advantage of the advanced geometric information available when the regular camera is swapped out for a plenoptic camera \cite{dansereau2011plenopticflow}. Utilsing this rich geometric information, \cite{dansereau2011plenopticflow} estimates a pixel-wise depth estimate using the gradient-depth constraint. The 'plenoptic flow' algorithm is an attractive approach for visual odometry as the computational complexity is constant with scene complexity, and the camera pose has a closed-form solution. 
 
 \subsection{The Machine Learning Approach}
 
@@ -84,7 +209,8 @@ While the training pipeline is unsupervised in the sense that labelled data is n
 
 
 \begin{equation}
-    L_{photometric} = \sum_m^W \sum_n^H |I_{t1}(m,n) - \hat{I_{t1}}(m,n)|
+    L_{photometric} = \sum_n^W \sum_m^H |I_{t1}(m,n) - \hat{I_{t1}}(m,n)|
+    \label{photometricloss}
 \end{equation}
 
 
@@ -96,77 +222,57 @@ Humans can easily imagine what a scene will look like if we move our heads sligh
 
 where K represents the intrinsics matrix. The obtained coordinate $\hat{p_{t2}}$ is continuous, while pixel coordinates are discrete. A pixel value thus needs to be interpolated, keeping in mind that each step of a neural network pipeline must be differentiable to support the backpropagation of gradients. 
 
-\cite{zhou2017unsupervised} suggested adopting the use of bilinear sampling as a fully differentiable sampling mechanism, as first proposed in \cite{jaderberg2015spatialtransformer}. A bilinear sampling kernel is described by 
+It was suggested in \cite{zhou2017unsupervised} that adopting bilinear sampling could be used as a fully differentiable sampling mechanism. The use of bilinear interpolation as a differentiable sampling pipeline was first proposed in \textit{Spatial Transformer Networks} \cite{jaderberg2015spatialtransformer}, and adapted by \cite{zhou2017unsupervised} to perform the differentiable image warp. A bilinear sampling kernel is described by 
 
 \begin{equation}
-    V = \sum_n^H \sum_m^W U_{nm} max (0, 1-|x - m|) max(0, 1-|y - n|)
+    V = \sum_n^W \sum_m^H U_{nm} max (0, 1-|x - n|) max(0, 1-|y - m|)
 \end{equation}
 
-Where $V$ is the output of the sampling kernel, $U$ is the source image being sampled, $n$ and $m$ index over the columns and rows of the kernel respectively, $H$ and $W$ are the height and width of the sampling kernel, and $x$ and $y$ are the local coordinates of the sampling location. The equation is differentiable with respect to x and y:
+Where $V$ is the output of the sampling kernel, $U$ is the source image being sampled, $n$ and $m$ index over the columns and rows of the kernel respectively, $H$ and $W$ are the height and width of the sampling kernel, and $x$ and $y$ are the local coordinates of the sampling location. The $2 \times 2$ sampling kernel used to perform the photometric reconstruction is, in essence a weighted sum of the 4 nearest neighbour pixels, based on its proximity to those pixels. The equation is differentiable with respect to both x and y:
 
 
 \begin{equation}
-    \frac{\partial{V}}{\partial{x}} = \sum_n^H \sum_m^W U_{nm} max(0, 1-|y - n|)
+    \frac{\partial{V}}{\partial{x}} = \sum_n^W \sum_m^H U_{nm} max(0, 1-|y - m|)
 \end{equation}
 \begin{equation}
-    \frac{\partial{V}}{\partial{y}} = \sum_n^H \sum_m^W U_{nm} max(0, 1-|x - m|)
+    \frac{\partial{V}}{\partial{y}} = \sum_n^W \sum_m^H U_{nm} max(0, 1-|x - n|)
 \end{equation}
 
-Using this bilinear sampling kernel, we can thus sample pixels from $I_{t2}$ to reconstruct $I_{t1}$ in a fully differentiable manner, allowing the backpropagation of gradients through the networks. The pipeline with photometric reconstruction as the supervision signal can be illustrated as: 
+Using this bilinear sampling kernel, we can thus sample pixels from $I_{t2}$ to reconstruct $I_{t1}$ in a fully differentiable manner, allowing the backpropagation of gradients through the networks. The pipeline with photometric reconstruction as the supervision signal can be illustrated as shown in figure \ref{supervisedMLCNNS}.
 
 
 \begin{figure}
     \centering 
     \includegraphics[width=5in]{images/mlpipeline.png}
-\end{figure}
-
-\section{The Light Field and Multiple View Geometry}
-
-Light field imaging has emerged as a powerful tool in computer vision for robotics, offering a rich higher-dimensional representation than what can be captured by conventional optics. The underlying principle used to describe the light field is the plenoptic function, a 7-dimensional mapping that assigns radiance values to the light rays at every position in space, in every orientation, at all wavelengths, throughout all of time \cite{ihrke2016lfprinciples}. \cite{adelson1991plenoptic} shows that this can be formally expressed as $L(x,y,z,\theta, \phi, \lambda, t)$, and measured in $W/m^2/sr/nm/s$. 
-With the addition of practical constraints however, the plenoptic function can be expressed more concisely as a parameterisation of 4 variables. 
-
-Pixels on camera sensors integrate the number of photons arriving at them over a finite period of time removing the temporal dimension, and each colour channel can be thought of as a monochromatic sampling of the light field, removing the spectral dimension. Additionally, and importantly, is the constraint that the radiance of light rays propagating through a vacuum do not change if samples are restricted to the convex hull of the scene, thus reducing the overall dimensionality of the plenoptic function by one parameter \cite{levoy1996lfrendering}. To illustrate this, one could think of the light rays leaving the inside of a bowl sat upright on a table. Many of those rays may only travel a small distance before being blocked by the inside of the bowl itself, meaning those rays will never be registered by any practical measurement device. As shown in figure \ref{convexhull} if we consider only the convex hull of the bowl however, we are required only to represent the value of the plenoptic function on the encapsulating surface of the object \cite{gortler1996lumigraph}.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=2.5in]{images/2pp.png}
-    \includegraphics[width=0.3in]{images/blank.png}
-    \includegraphics[width=2.5in]{images/convexhull.png}
-    
-    \caption{Two plane parameterisation (left): the plenoptic function can be described by the radiance along a ray passing through two parallel planes. The free space assumption (right): if we consider only the bundle of rays leaving from the convex hull of the object at a particular instance in time, in a single colour channel, we can parameterise the light rays as a function of 4 variables rather than 7.}
-    
-    \label{convexhull}
-\end{figure}
-
-Also illustrated is a common convention for describing light rays in this 4 dimensional space called the two plane parameterisation. In this parameterisation, two parallel planes are used to fix both the position and orientation of each ray by fixing their points of intersection with two parallel planes. By convention, the plane closest to the scene it termed \textit{u, v} and the plane closest to the camera sensor is the \textit{s, t} plane.
-
-
-
-This 4D realisation of the light field originated as a model of rendering 3D computer graphics, one which shifted emphasis from notions of texture and geometric primitives to modeling the behaviour of light rays permeating space. Since then however, the conceptual framework of the light field has drawn a following of researchers at an intersecting region of signal processing, computer vision and robotics \cite{dansereau2014phd}. This notion of light field imaging finds a foothold in this thesis project through the utilisation of camera arrays, which are devices that sample multiple views of the same scene. Using a camera array is a simple method for acquiring a dense sample of the light field, where the position of the camera determines \textit{(s,t)} while the location of the pixel determines \textit{(u, v)} \cite{yao2016camarray}. The images captured from a camera array are mapped easily to the 4D light field, and identifying corresponding pixels across images exposes a rich tapestry of geometric information about the scene. 
-
-
-\begin{figure}[tbp]
-    \centering
-    \includegraphics[width=4.5in]{images/robotcamera.jpg}
-    \caption{An example of a camera array mounted on a robotic arm. This camera array is configured as 17 sub-apertures arranged on a single plane in a cross-hair formation. Camera arrays sample several views of the same scene and are thus capable of acquiring a dense sample of the light field.}
-    \label{cameraarray}
-    \vspace{1cm}
-    \includegraphics[width=1.6in]{images/epipolarimage.png}
-    \includegraphics[width=0.4in]{images/blank.png}
-    \includegraphics[width=3.5in]{images/fruitfocus.png}
-    \caption{Epipolar Plane Images (left): Shown as a slice of a volume, the images formed by dissecting the image in the \textit{s,u} and \textit{t,v} planes are characterised by sheared straight lines, with the grade of the slope encoding the amount of parallax experienced by a pixel at that \textit{u} or \textit{v} coordinate. Synthetic aperture focusing (right): taking the average of every image from the camera array yields an image where different parts are in focus depending on the alignments of the images.}
-    \label{epiplaneimg}
+    \caption{To provide a supervisory signal to the depth and pose CNN's, \cite{garg2016unsupervised} suggested using photometric reconstruction. The loss function is formulated by taking the difference between the reconstructed image $\hat{I_{t1}}$ and the actual image $I_{t1}$, shown in equation \ref{photometricloss}.}
+    \label{supervisedMLCNNS}
 \end{figure}
 
 
-One way that this geometric information can be easily visualised is by taking slices of the light field image in the \textit{s,u} or \textit{t, v} axes as shown in figure \ref{epiplaneimg}. While the idea of taking a 2D slice from the 4D image can seem complex, the task of generating a so called 'epipolar plane image' from a camera array is deceptively simple. Images captured from camera arrays can be stacked to form a solid volume, from which 2D slices can be sampled. Each of these slices yields an image characterised by sheared straight lines, encoding information about the geometry of the scene, including depth and occlusions \cite{bolles1987epiplane}. 
+In addition to the photometric reconstruction loss providing the main supervision signal to the network, \cite{zhou2017unsupervised} employs a smoothness loss to ensure that the produced depth map is globally smooth. The smoothness penalises the second order gradient of the image - i.e. the depth network is encouraged to produce a depth map characterised mostly by low-frequency components, and penalised for high-frequency components. Recognising that depth discontinuities frequently occur in parts of the image where a strong edge appears, \cite{godard2016consistency} on the other hand suggested the use of an edge-aware smoothness loss that also penalises large gradients in the depth map $\partial{d}$, but lowers the weight of the loss in regions where the image gradient $\partial{I}$ is large. 
 
-The geometric information encoded in a light field sampling can alternatively be visualised by processing the image into a 'focal stack'. Focal stacks closely resemble images with shallow depth of field such as those that can be captured from a commercial DSLR camera. Light field focal stacks differ from focus in the optical sense however in that they are synthetic and can be recomputed after the image has been taken, effectively allowing control over the depth of field and focal depth in post-processing. Focal stacks can be computed from camera array images by layering images over one another and taking the average value for each pixel. The result is that parts of the scene that closely overlap appear in focus while areas with poor overlap create a 'bokeh' effect. More formally, if the relative pose of each camera is known, a specific focal stack for any desired depth can be computed by projecting each image onto the desired focal plane, and computing their average \cite{vaish2004parallax}.
+\begin{equation}
+    L_{smooth} =  \sum_n^W \sum_m^H |\partial_x d_{nm} e^{-|\delta_x I_{nm}|}| + \partial_y d_{nm} e^{-|\delta_y I_{nm}|}|
+\end{equation}
 
-These representations of the light field will play an important role in this thesis project as we experiment with different methods for feeding light field images to the machine learning pipeline. An important consideration in any machine learning algorithm is the feature space - based on what particular inputs will the algorithm be making its decision? Raw images contain millions of measurements and thus represent an incredibly high-dimensional feature space for neural networks to process. Light field images are several times larger, and thus it is important that some form of dimensionality reduction is used to ease the training process. With the goal of investigating effective methods of feeding light fields to neural networks, this thesis will explore the use of three different light field formats as the entry point to the machine learning pipeline. The first two will be the focal stack, and epipolar plane image described above, interpreting the images as a 3 dimensional volume created by stacking 2 dimensional images on top of one another. The third will treat the light field as a 4 dimensional volume, requiring a 3D signal processing pipeline to fully take advantage of the dimensionality.
 
+There have been several iterations \cite{godard2016consistency, godard2018selfsupervised, zhan2018deepfeature} of this pipeline, most of which have focussed on introducing novel loss functions to improve the quality of the depth and pose estimates. To the best of our knowledge however, this pipeline has only ever been applied to monocular and stereo camera setups. While monocular and stereo cameras are ubiquitous in modern digital devices, this thesis will investigate the potential for the use of this pipeline to achieve improved results using a broader, more generalised family of imaging devices. 
+
+It is estimated that the biological eye has independently evolved no fewer than 40 times in the animal kingdom producing a huge variety of visual configurations \cite{neumann2002polydioptric}. The evolution of a systems eye is evidently correlated to the tasks that the system has to solve. Breaking free of the pinhole principle from which human eyes have developed and which commercial cameras have adopted has wide implications in the field of machine vision. However, interpreting the ray directions and geometry for new cameras may not always be apparent to the users, giving rise to the data-driven approach. Working on the principle that machine vision does not necessitate mimicking the human eye to capture imagery, this thesis investigates the capabilities of machine learning for querying depth and visual odometry using one such novel imaging device. 
+
+
+
+\section{Convolutional Neural Networks and Light Field Images}
+
+In order to craft such a machine learning pipeline that complements the use of camera arrays, an investigation into input methods for 4D light fields into convolutional neural networks is due. It is recognised in \cite{sun2016lfdepthcnn} that while epipolar plane images (EPI) explicitly encode depth information, directly extracting such information without significant post-processing refinement and computational cost is difficult. \cite{sun2016lfdepthcnn} demonstrates strong results in using a CNN to interpret the gradient-depth relationship between an EPI and the images corresponding depth map. An EPI is extracted in both the horizontal and vertical direction for every row and column of the image in the $u, v$ plane, and subsequently fed to the network as two long, cubic volumes to obtain their results.
+
+The rich textural data available in a 4D lightfield was purposed by \cite{wang2016lfcnn} for the task of material recognition using a deep CNN. In addition to reporting significantly improved material-recognition results (from 70\% to 77\% accuracy), \cite{wang2016lfcnn} proposes and compares a number of strategies for training on 4D images. One method that achieves strong results uses an angular filter, taking advantage of the 'angular resolution' that is gained by using a light field image over 2D images. The 4D light field image is first reshaped to form what \cite{wang2016lfcnn} calls a 'remap' image. A traditional 2D image is formed by discrete pixels; a remapped 4D image on the other hand is formed of blocks of pixels, each block of size $h_a \times w_a$, formed by taking one pixel from each camera in the array. The result is a 2D image from which a 2D convolutional filter is able to learn features that indicate texture and parallax. While the remapping method achieved the best results, unfortunately such an arrangement of the image data does not make sense in the case of the camera array being used for this project, as the cameras are arranged in a crosshair formation - 8 vertical cameras, 8 horizontal and 1 center image. The remapped image using this camera would comprise $17 \times 17$ blocks of mostly black pixels, producing a very inefficient representation of the data. 
+
+Another method proposed in \cite{wang2016lfcnn}, albeit one that demonstrated lower accuracy than the angular filter method, was to concatenate images along their RGB channels prior to being fed to the network. The dimensionality of the image is quickly downsampled, and is thus a more computationally and memory efficient method than using angular filters, whilst still demonstrating improvement over 2D images. A potential improvement on this strategy that may prove useful in this work would be to use a dilated convolution, effectively opening the receptive field to a much larger area of the image without increasing computational complexity. In another potential improvement, convolutional filters that sample in 3 dimensional space may be able to utilise the 4 dimensional signal structures in the light field more effectively than a 2 dimensional filter.
 
 \chapter{Progress Report}
+
+
 
 \chapter{Updated Research Proposal}
 
