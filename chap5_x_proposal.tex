@@ -1,0 +1,23 @@
+
+\chapter{Updated Research Proposal}
+
+As this thesis project approaches the half-way point, it is worth updating the original research proposal to reflect the projects current progress and timeline. 16 weeks have passed since the beginning of the project, and 25 weeks remain before the seminar presentation in week 13 of semester 1 2020.
+
+\section{Milestones}
+
+\subsubsection{Data Acquisition}
+Achieving a critical mass of data is an important milestone in this project, as it is heavily reliant on an abundance of training data. The majority of data collection activities are expected to be completed within the next two weeks, with a view to collecting 10,000 pose-stamped light field images. 
+
+\subsubsection{Algorithm Development and Evaluation}
+This thesis proposes a fully-unsupervised depth and visual odometry pipeline. On the path to achieving this algorithm however, is a number of useful experiments that can be performed to gather preliminary results and prepare for challenges in the final formulation of the centerpiece algorithm. One of these experiments is described in chapter 5 - using ground truth pose data to supervise a visual-odometry-performing CNN. 
+
+The most important milestone currently being worked towards for the algorithm and software development part of this thesis is understanding the root cause of the numerical instability seen in training the model when using light field imagery. Chapter 5 demonstrated that visual odometry is absolutely possible using CNN's. I therefore firmly believe that there is likely to be an error in interpreting pose stamps collected from the robot arm, rather than the nature of the task itself being too difficult for a network to solve. This experiment will be completed and delivered in the next 4 weeks, by which time an evaluation study will be written with results and discussion. 
+
+Once this supervised CNN is demonstrated to properly ingest light field imagery and produce pose estimates, work will begin on inserting the depth estimation module into the pipeline. Many of the components of the depth estimation module are already in place, ready to be added to the pipeline. This will be completed in the next 12 weeks. Once the algorithm is demonstrated to work in the most simple cases, there will be a three main experiments to perform. 
+
+The first will experimentally evaluate different methods of feeding light field imagery to convolutional neural networks. The second will experimentally determine the differences in performance when different numbers of sub-apertures from the camera array are used. A full validation study surrounding this component of the thesis will be produced in the next 16 weeks. 
+
+A comfortable buffer is built into this plan to allow for the expected decrease in time available for this project once the semester begins in February 2020. 
+
+\subsubsection{Preparation of Seminar Materials and Final Thesis Submission}
+The remainder of the time available for this thesis project will be devoted to preparing materials for the seminar presentation and final thesis submission. I expect that a large amount of this time will still be spent collecting results and making experimental changes to the pipeline, but large structural changes to the program will be avoided. 
