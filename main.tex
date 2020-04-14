@@ -5,7 +5,7 @@
 \usepackage[a4paper, total={6in, 8in}]{geometry}
 \usepackage{booktabs}
 \usepackage{caption} 
-
+\usepackage{multirow}
 \usepackage{fancyhdr}
 \usepackage{subfiles}
 
@@ -42,6 +42,8 @@
 
 \begin{document}
 
+\frontmatter
+
 \maketitle
 
 \chapter*{Declaration of Contribution}
@@ -49,13 +51,17 @@ I did some things.
 
 \chapter*{Abstract}
 
-The meteoric rise of mobile robotics has seen traditionally difficult-to-navigate environments like the home, the road and the ocean, become standard operating environments for autonomous machines. This rapid advancement has culminated in an increasing need for accurate robotic navigation, where the pinnacle of autonomy is the ability to operate adaptively in unconstrained environments. Central to this capability is the ability to sense motion - a task that has recently drawn considerable attention from those in the computer vision community and given rise to a family of algorithms called \textit{visual odometry}. 
+The meteoric rise of mobile robotics has seen traditionally difficult-to-navigate environments like the home, the road and the ocean, become standard operating environments for autonomous machines. This rapid advancement has culminated in an increasing need for accurate robotic navigation, where the pinnacle of autonomy is the ability to operate adaptively in unconstrained environments. Central to this capability is the ability to perceive motion - a task that has recently drawn considerable attention from those in the computer vision community and given rise to a family of algorithms called \textit{visual odometry}. 
 
-The primary contribution of this work is a novel, data-driven pipeline for visual odometry, which combines recent successes in plenoptic imaging with the pattern recognising capabilities of convolutional neural networks. While the algorithm is indeed a data-driven one, the proposed pipeline is unsupervised, meaning ground truth data which is typically expensive and time-consuming to acquire, is not required for the algorithm to function. Furthermore, the unsupervised nature of the algorithm endows it with a robustness to the inconvenient, calibration-wrecking effects that field robotics are all-too-frequently subjected to, such as thermal expansion and shock. 
+The primary contribution of this work is a novel, data-driven pipeline for visual odometry, which combines recent successes in plenoptic imaging with the pattern recognition capabilities of convolutional networks. Notably, we formulate our algorithm as an \textit{unsupervised} learning problem, meaning neither ground-truth odometry, nor depth is used to train our pipeline. The self-supervising nature of our algorithm equips it with a robustness to effects like thermal expansion, and shock - effects which are all too common in mobile robotics, and likely to render equipment calibration invalid. Being self-supervised, our algorithm is capable of adapting and learning from experience, even whilst operating in-situ, building resilience to these destabilising effects.
 
-The proposed algorithm is trained and validated on a dataset which was collected over the course of this project. A robotic arm with a known kinematic model is used for data-collection, providing ground truth trajectory data for validation. While the algorithm does not require this ground truth data to train on, it is nevertheless a useful byproduct of the data-acquisition process, allowing us to perform a healthy validation study of the proposed model.
+% While our algorithm is indeed data-driven, we the proposed pipeline is unsupervised, meaning ground truth data which is typically expensive and time-consuming to acquire, is not required for the algorithm to function. Furthermore, the unsupervised nature of the algorithm endows it with a robustness to the inconvenient, calibration-wrecking effects that field robotics are all-too-frequently subjected to, such as thermal expansion and shock. 
 
-Finally, the proposed algorithm is compared to two existing families of visual odometry algorithms. The first is a group of algorithms that directly model the geometry of multi-view imaging, solving directly for ego-motion using a closed-form solution. The second family uses a data-driven approach, much like the algorithm proposed in this work, but unlike this work they do not harness the power of plenoptic imaging.
+% The proposed algorithm is trained and validated on a dataset which was collected over the course of this project. A robotic arm with a known kinematic model is used for data-collection, providing ground truth trajectory data for validation. While the algorithm does not require this ground truth data to train on, it is nevertheless a useful byproduct of the data-acquisition process, allowing us to perform a healthy validation study of the proposed model.
+
+We train and validate our algorithm on a dataset, collected and annotated as part of this thesis project. A robotic arm with a known kinematic model is used to acquire our dataset, providing valuable ground-truth data for validation.
+
+Finally, we compare our proposed pipeline to two existing families of visual odometry algorithms. The first is a group of algorithms that directly model the geometry of multi-view imaging, solving directly for ego-motion using closed-form solutions. The second family uses data-driven approaches, but unlike this work they do not harness the power of plenoptic imaging. In doing so, we demonstrate the power of plenoptic imaging as a novel imaging modality for robotics, in terms of accuracy, computational convenience and adaptability.
 
 
 \chapter*{Acknowledgements}
@@ -69,7 +75,7 @@ Thanks Don.
 \listoffigures
 \listoftables
 
-
+\mainmatter
 \subfile{chap1_intro.tex}
 \subfile{chap2_background.tex}
 \subfile{chap3_lit.tex}

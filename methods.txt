@@ -1,0 +1,20 @@
+POSE NETWORK
+
+DEPTH NETWORK 
+
+LOSS MODULE
+    - Photometric warp loss
+        - Differentiable Image-Based Rendering
+    - Total-variation smoothness loss 
+
+INPUT FORMAT
+    - Volume
+    - Focal Stack
+    - Tiled Epipolar Plane Images 
+
+MODIFICATIONS
+    - Multiple-photometric-warp 
+
+
+
+
