@@ -1,0 +1,45 @@
+\BOOKMARK [0][-]{chapter.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.1.1}{Motivation}{chapter.1}% 2
+\BOOKMARK [2][-]{subsection.1.1.1}{Visual Odometry and Robotic Perception}{section.1.1}% 3
+\BOOKMARK [2][-]{subsection.1.1.2}{Computational Imaging}{section.1.1}% 4
+\BOOKMARK [1][-]{section.1.2}{Problem Statement}{chapter.1}% 5
+\BOOKMARK [1][-]{section.1.3}{Contributions}{chapter.1}% 6
+\BOOKMARK [1][-]{section.1.4}{Outline}{chapter.1}% 7
+\BOOKMARK [0][-]{chapter.2}{Background}{}% 8
+\BOOKMARK [1][-]{section.2.1}{Geometry in Computer Vision}{chapter.2}% 9
+\BOOKMARK [2][-]{subsection.2.1.1}{The Pinhole Camera}{section.2.1}% 10
+\BOOKMARK [2][-]{subsection.2.1.2}{Epipolar Geometry and the Fundamental Matrix}{section.2.1}% 11
+\BOOKMARK [1][-]{section.2.2}{The 4D Light Field}{chapter.2}% 12
+\BOOKMARK [1][-]{section.2.3}{Machine Learning in Computer Vision}{chapter.2}% 13
+\BOOKMARK [0][-]{chapter.3}{Literature Survey}{}% 14
+\BOOKMARK [1][-]{section.3.1}{Geometric Approaches to Visual Odometry}{chapter.3}% 15
+\BOOKMARK [2][-]{subsection.3.1.1}{A Survey of Geometric Approaches to Pose-Estimation}{section.3.1}% 16
+\BOOKMARK [2][-]{subsection.3.1.2}{Iterative Methods}{section.3.1}% 17
+\BOOKMARK [2][-]{subsection.3.1.3}{Closed-form Methods}{section.3.1}% 18
+\BOOKMARK [1][-]{section.3.2}{Data-driven Approaches to Visual Odometry}{chapter.3}% 19
+\BOOKMARK [2][-]{subsection.3.2.1}{A Taxonomy of Data-Driven Methods for Pose-Estimation}{section.3.2}% 20
+\BOOKMARK [2][-]{subsection.3.2.2}{Simultaneous Unsupervised Depth and Pose Estimation}{section.3.2}% 21
+\BOOKMARK [1][-]{section.3.3}{Convolutional Neural Networks and The Light Field}{chapter.3}% 22
+\BOOKMARK [0][-]{chapter.4}{Simultaneous Depth and Pose from Light Fields}{}% 23
+\BOOKMARK [1][-]{section.4.1}{Data Acquisition}{chapter.4}% 24
+\BOOKMARK [2][-]{subsection.4.1.1}{Ground Truth Pose Data}{section.4.1}% 25
+\BOOKMARK [2][-]{subsection.4.1.2}{Imagery}{section.4.1}% 26
+\BOOKMARK [1][-]{section.4.2}{Depth and Visual Odometry Pipelines}{chapter.4}% 27
+\BOOKMARK [2][-]{subsection.4.2.1}{Pose Estimation}{section.4.2}% 28
+\BOOKMARK [2][-]{subsection.4.2.2}{Depth Estimation}{section.4.2}% 29
+\BOOKMARK [2][-]{subsection.4.2.3}{Photometric Warp Loss}{section.4.2}% 30
+\BOOKMARK [2][-]{subsection.4.2.4}{Input Methods}{section.4.2}% 31
+\BOOKMARK [1][-]{section.4.3}{Complete Light Field Reconstruction}{chapter.4}% 32
+\BOOKMARK [0][-]{chapter.5}{Results}{}% 33
+\BOOKMARK [1][-]{section.5.1}{Pose Estimation and Visual Odometry}{chapter.5}% 34
+\BOOKMARK [2][-]{subsection.5.1.1}{Single-view Reconstruction}{section.5.1}% 35
+\BOOKMARK [2][-]{subsection.5.1.2}{Light field Reconstruction}{section.5.1}% 36
+\BOOKMARK [2][-]{subsection.5.1.3}{Monocular Approach}{section.5.1}% 37
+\BOOKMARK [2][-]{subsection.5.1.4}{Light field Reconstruction}{section.5.1}% 38
+\BOOKMARK [2][-]{subsection.5.1.5}{Comparison between Pipelines and Summary}{section.5.1}% 39
+\BOOKMARK [1][-]{section.5.2}{Depth and Photometric Reconstruction}{chapter.5}% 40
+\BOOKMARK [2][-]{subsection.5.2.1}{Single-view Reconstruction}{section.5.2}% 41
+\BOOKMARK [2][-]{subsection.5.2.2}{Light field Reconstruction}{section.5.2}% 42
+\BOOKMARK [2][-]{subsection.5.2.3}{Monocular Approach}{section.5.2}% 43
+\BOOKMARK [2][-]{subsection.5.2.4}{Comparison between Pipelines and Summary}{section.5.2}% 44
+\BOOKMARK [0][-]{chapter.6}{Discussion}{}% 45

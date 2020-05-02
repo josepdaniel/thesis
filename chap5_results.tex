@@ -2,93 +2,92 @@
 
 \chapter{Results}
 
-In this chapter, we describe the results from our pose and depth experiments. In the previous chapter, we suggested two pipelines for learning these tasks, as well as several input strategies that allow neural networks to ingest 4D light field data. We organise this chapter into three sections. The first two sections describe the results from each pipeline, and in the third, we compare their relative performance in order to build a quantitative basis for our discussion in the following chapter.
+In this chapter, we describe the results from our pose and depth experiments. In Chapter 3 we described an unsupervised pipeline for learning depth and visual odometry from monocular imagery. Similarly, in Chapter 4, adapted conventional 2D machine learning techniques to apply 4D image data to learning these tasks. Specifically, we recommended two variants of an algorithm for learning depth and visual odometry from light fields - the first uses all the information from the light field to generate a novel rendering of a single \textit{(U, V)} slice, while the second method uses the known configuration of the camera array to create a rendering of the complete light field. In this chapter, we contrast results for three algorithms - each of the two novel pipelines described in Chapter 4, and the existing monocular approach described in Chapter 3. For the two algorithms that we have suggested, we also evaluate three ingestion methods: focal-stacks, volumetric images, and tiled EPI images. 
 
+First, we evaluate each algorithm's performance in pose-estimation, and demonstrate results for cumulated trajectories for several input-sequences. Subsequently, we'll evaluate the algorithms' performance in depth-prediction and photometric reconstruction. 
 
-\section{Single-Image-Reconstruction Pipeline}
+\section{Pose Estimation and Visual Odometry}
 
-
-\subsection{Depth Estimates}
-
-\subsection{Trajectories}
-
-\section{Light-Field-Reconstruction Pipeline}
-
-
-\subsection{Depth Estimates}
-
+\subsection{Single-view Reconstruction}
 \begin{figure}[H]
-    % \centering 
-    \subfloat{
-        \label{input_img_20}
-        \includegraphics[width=0.19\textwidth]{images/depth/20/image.png}
-    }
-    \subfloat{
-        \label{multiwarp_epi_20}
-        \includegraphics[width=0.19\textwidth]{images/depth/20/multiwarp_epi_20.png}
-    }
-    \subfloat{
-        \label{multiwarp_epi_20}
-        \includegraphics[width=0.19\textwidth]{images/depth/20/multiwarp_stack_20.png}
-    }
-    \subfloat{
-        \label{multiwarp_epi_20}
-        \includegraphics[width=0.19\textwidth]{images/depth/20/multiwarp_fs9_20.png}
-    }
-    \subfloat{
-        \label{multiwarp_epi_20}
-        \includegraphics[width=0.19\textwidth]{images/depth/20/multiwarp_fs5_20.png}
-    } \\
-
-    \setcounter{subfigure}{0}
-    \subfloat[Input Image]{
-        \label{input_img_20}
-        \includegraphics[width=0.19\textwidth]{images/depth/44/image.png}
-    }
     \subfloat[Tiled EPIs]{
-        \label{multiwarp_epi_20}
-        \includegraphics[width=0.19\textwidth]{images/depth/44/multiwarp_epi_44.png}
+        \includegraphics[height=2in]{images/result-examples/pose/trajectories/singlewarp/sw-epi-16.png}
     }
-    \subfloat[Volumetric Image]{
-        \label{multiwarp_epi_20}
-        \includegraphics[width=0.19\textwidth]{images/depth/44/multiwarp_stack_44.png}
+    \subfloat[Focal Stacks]{
+        \includegraphics[height=2in]{images/result-examples/pose/trajectories/singlewarp/sw-focalstack-175-16.png}
     }
-    \subfloat[Focal Stack (9)]{
-        \label{multiwarp_epi_20}
-        \includegraphics[width=0.19\textwidth]{images/depth/44/multiwarp_fs9_44.png}
+    \subfloat[Volumetric Images]{
+        \includegraphics[height=2in]{images/result-examples/pose/trajectories/singlewarp/sw-stack-16.png}
+    }\\
+    \caption{Estimated and true trajectories for input sequence 16.}
+    \setcounter{subfigure}{0}
+
+    \subfloat[Tiled EPIs]{
+        \includegraphics[height=2in]{images/result-examples/pose/trajectories/singlewarp/sw-epi-44.png}
     }
-    \subfloat[Focal Stack (5)]{
-        \label{multiwarp_epi_20}
-        \includegraphics[width=0.19\textwidth]{images/depth/44/multiwarp_fs5_44.png}
-    } \\
-    
+    \subfloat[Focal Stacks]{
+        \includegraphics[height=2in]{images/result-examples/pose/trajectories/singlewarp/sw-focalstack-175-44.png}
+    }
+    \subfloat[Volumetric Images]{
+        \includegraphics[height=2in]{images/result-examples/pose/trajectories/singlewarp/sw-stack-44.png}
+    }
+    \caption{Estimated and true trajectories for input sequence 44.}
+    \setcounter{subfigure}{0}
 \end{figure}
 
-\subsection{Trajectories}
-
+\subsection{Light field Reconstruction}
 \begin{figure}[H]
-    \setcounter{subfigure}{0}
-    % \centering 
     \subfloat[Tiled EPIs]{
-        \label{input_img_20}
-        \includegraphics[width=0.5\textwidth]{images/trajectories/multiwarp-epi.png}
-    } 
-    \subfloat[Volumetric Image]{
-        \label{multiwarp_epi_20}
-        \includegraphics[width=0.5\textwidth]{images/trajectories/multiwarp-volumetric.png}
-    } \\
-    \subfloat[Focal Stack (9)]{
-        \label{multiwarp_epi_20}
-        \includegraphics[width=0.5\textwidth]{images/trajectories/multiwarp-focalstack-17-9.png}
+        \includegraphics[height=2in]{images/result-examples/pose/trajectories/multiwarp/mw-epi-16.png}
     }
-    \subfloat[Focal Stack (5)]{
-        \label{multiwarp_epi_20}
-        \includegraphics[width=0.5\textwidth]{images/trajectories/multiwarp-focalstack-17-5.png}
+    \subfloat[Focal Stacks]{
+        \includegraphics[height=2in]{images/result-examples/pose/trajectories/multiwarp/mw-fs-175-16.png}
     }
-    
+    \subfloat[Volumetric Images]{
+        \includegraphics[height=2in]{images/result-examples/pose/trajectories/multiwarp/mw-stack-16.png}
+    }
+    \caption{Estimated and true trajectories for input sequence 16.}
+    \setcounter{subfigure}{0}
+    \subfloat[Tiled EPIs]{
+        \includegraphics[height=2in]{images/result-examples/pose/trajectories/multiwarp/mw-epi-44.png}
+    }
+    \subfloat[Focal Stacks]{
+        \includegraphics[height=2in]{images/result-examples/pose/trajectories/multiwarp/mw-fs-175-44.png}
+    }
+    \subfloat[Volumetric Images]{
+        \includegraphics[height=2in]{images/result-examples/pose/trajectories/multiwarp/mw-stack-44.png}
+    }
+    \caption{Estimated and true trajectories for input sequence 44.}
+    \setcounter{subfigure}{0}
 \end{figure}
 
-\section{Comparison between Pipelines}
+
+\subsection{Monocular Approach}
+
+\begin{figure}[H]
+    \subfloat[Sequence 16]{
+        \includegraphics[height=3in]{images/result-examples/pose/trajectories/monocular/monocular-16.png}
+    }
+    \subfloat[Sequence 44]{
+        \includegraphics[height=3in]{images/result-examples/pose/trajectories/monocular/monocular-44.png}
+    }
+    \caption{Estimated and true trajectories using monocular imagery.}
+    \setcounter{subfigure}{0}
+\end{figure}
+
+\subsection{Light field Reconstruction}
+
+
+\subsection{Comparison between Pipelines and Summary}
+
+\section{Depth and Photometric Reconstruction}
+
+\subsection{Single-view Reconstruction}
+\subsection{Light field Reconstruction}
+\subsection{Monocular Approach}
+
+\subsection{Comparison between Pipelines and Summary}
+
 
 
 
