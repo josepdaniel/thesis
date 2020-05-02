@@ -14,6 +14,17 @@
 \contentsline {figure}{\numberline {3.4}{\ignorespaces Orthographic projection (left) \cite {behrendt2006isometric}: the lines of sight to all points in the scene are parallel to one other, and perpendicular to the projective plane. Perspective projection (right) \cite {gothe2009perspective}: lines of sight converge to a point giving the effect that distant objects appear smaller than nearby objects.\relax }}{26}% 
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {4.1}{\ignorespaces The experimental setup utilises a Universal Robots UR5E robotic arm to precisely measure ground-truth pose to allow effective evaluation of the projects visual odometry results.\relax }}{29}% 
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Tiled \textit {U, V} slices (top): this is an intuitive way of slicing the light field, which tiles images from each sub-aperture side-by-side. Tiled \textit {T, V} slices (bottom): somewhat less intuitively, this method instead tiles the vertical epipolar-plane images side-by-side. We call these \textit {wide} EPIs. As shown, the overall dimensionality and shape of the light field is unchanged, we simply present the information in a different order, revealing different encodings of the captured scene. We can also tile the light field as \textit {S, U} slices, stacking them vertically, which we refer to as \textit {tall} EPIs.\relax }}{35}% 
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Tiled \textit {U, V} slices (top): this is an intuitive way of slicing the light field, which tiles images from each sub-aperture side-by-side. Tiled \textit {T, V} slices (bottom): somewhat less intuitively, this method instead tiles the vertical epipolar-plane images side-by-side. We call these \textit {wide} EPIs. As shown, the overall dimensionality and shape of the light field is unchanged, we simply present the information in a different order, revealing different encodings of the captured scene. We can also tile the light field as \textit {S, U} slices, stacking them vertically, which we refer to as \textit {tall} EPIs.\relax }}{36}% 
 \contentsline {figure}{\numberline {4.3}{\ignorespaces Our proposed encoder module which encodes the tiled EPIs, downsampling them to the shape expected by our depth and pose networks. Notably, features which have been learned in \textit {T, V} as well as \textit {S, U} are concatenated with the stacked \textit {U, V} slices (exactly as seen in our first input-method.) For brevity, we have only shown a small patch of the tall and wide EPIs, but the reader is reminded that these tilings are in fact very tall, and very wide.\relax }}{36}% 
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Given knowledge of how one sub-aperture has moved through space, we can also compute how any other sub-aperture has moved by chaining the transforms in the order shown.\relax }}{37}% 
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Given knowledge of how one sub-aperture has moved through space, we can also compute how any other sub-aperture has moved by chaining the transforms in the order shown.\relax }}{38}% 
+\addvspace {10\p@ }
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Input Image}}}{41}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Tiled EPIs}}}{41}% 
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {Volumetric Image}}}{41}% 
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {Focal Stack (9)}}}{41}% 
+\contentsline {subfigure}{\numberline {(e)}{\ignorespaces {Focal Stack (5)}}}{41}% 
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Tiled EPIs}}}{42}% 
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Volumetric Image}}}{42}% 
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {Focal Stack (9)}}}{42}% 
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {Focal Stack (5)}}}{42}% 
+\addvspace {10\p@ }
