@@ -1,9 +1,9 @@
 
 \chapter{Background}
 
-\begin{chapquote}{\textit{Arthur C. Clarke}}
-    ``Before you become too entranced with gorgeous gadgets and mesmerizing video displays, let me remind you that information is not knowledge, knowledge is not wisdom, and wisdom is not foresight. Each grows out of the other, and we need them all''
-\end{chapquote}
+% \begin{chapquote}{\textit{Arthur C. Clarke}}
+%     ``Before you become too entranced with gorgeous gadgets and mesmerizing video displays, let me remind you that information is not knowledge, knowledge is not wisdom, and wisdom is not foresight. Each grows out of the other, and we need them all''
+% \end{chapquote}
 
 \section{Geometry in Computer Vision}
 
@@ -29,10 +29,8 @@ The most basic kind of camera, the pinhole camera projects a 3D world point $[X,
     Y \\
     Z
 \end{bmatrix}.
-\end{equation}
-
-The intrinsics matrix can alternatively be thought of as mapping ray directions to pixel coordinates:
-
+\end{equation}\\
+The intrinsics matrix can alternatively be thought of as mapping ray directions to pixel coordinates:\\
 \begin{equation}
 \begin{bmatrix}
     u\\
@@ -49,20 +47,16 @@ The intrinsics matrix can alternatively be thought of as mapping ray directions 
     tan(\phi) \\
     1
 \end{bmatrix}.
-\end{equation}
-
-
+\end{equation}\\
 \begin{figure}[htbp]
     \centering 
     \includegraphics[width=4in]{images/pinhole.png}
     \caption[The pinhole model of the camera]{The pinhole model describes how a light ray originating from world coordinate $P$ is received at pixel coordinate $(u, v)$. Equivalently, the pinhole model can be thought of as associating the light ray of elevation $\phi$ and azimuth $\theta$ with the specific pixel coordinate $(u, v)$. Since the relationship is a one-to-one mapping between ray directions and pixel coordinates, the inverse of the intrinsics matrix $K^{-1}$ associates each pixel with a corresponding ray direction.}
 \end{figure}
 
-
-
 \subsection{Epipolar Geometry and the Fundamental Matrix}
 
-Epipolar geometry describes the relationship between two cameras, and imposes a set of constraints which makes it possible for us to draw meaningful geometric information when we have two views of the same scene. This relationship is encapsulated in a $3 \times 3$ matrix called the Fundamental matrix $F$. The culmination of the epipolar constraint is that any point in 3 dimensional space that appears at pixel $(u_1, v_1, 1)$ in one view and $(u_2, v_2, 1)$ in the second view must satisfy the relationship:
+Epipolar geometry describes the relationship between two cameras, and imposes a set of constraints which makes it possible for us to draw meaningful geometric information when we have two views of the same scene. This relationship is encapsulated in a $3 \times 3$ matrix called the Fundamental matrix $F$. The culmination of the epipolar constraint is that any point in 3 dimensional space that appears at pixel $[u_1, v_1, 1]$ in one view and $[u_2, v_2, 1]$ in the second view must satisfy the relationship:
 
 \begin{equation}
     \begin{bmatrix}
@@ -106,8 +100,16 @@ Levoy et al. \cite{levoy1996lfrendering} shows that with the addition of practic
 
 Also illustrated is a common convention for describing light rays in this 4 dimensional space called the two plane parameterisation \cite{gortler1996lumigraph}. In this parameterisation, two parallel planes are used to fix both the position and orientation of each ray by fixing their points of intersection with two parallel planes. By convention, the plane closest to the scene is termed \textit{u, v} and the plane closest to the camera sensor is the \textit{s, t} plane.
 
-This 4D realisation of the light field originated as a model of rendering 3D computer graphics, one which shifted emphasis from notions of texture and geometric primitives to modeling the behaviour of light rays permeating space. Since then however, the conceptual framework of the light field has drawn a following of researchers at an intersecting region of signal processing, computer vision and robotics \cite{dansereau2014phd}. This notion of light field imaging finds a foothold in this work through the utilisation of camera arrays, which are devices that sample multiple views of the same scene. Using a camera array is a simple method for acquiring a sparse sample of the light field, where the position of the camera determines \textit{(s,t)} while the location of the pixel determines \textit{(u, v)} \cite{yao2016camarray}. The images captured from a camera array are mapped easily to the 4D light field, and identifying corresponding pixels across images exposes a rich tapestry of geometric information about the scene. 
+This 4D realisation of the light field originated as a model of rendering 3D computer graphics, one which shifted emphasis from notions of texture and geometric primitives to modeling the behaviour of light rays permeating space. Since then however, the conceptual framework of the light field has drawn a following of researchers at an intersecting region of signal processing, computer vision and robotics \cite{dansereau2014phd}. 
 
+\subsection{Visualising the Light Field}
+\subsubsection{TODO: 2D Grids of 2D Images}
+
+Light field imaging finds a foothold in this work through the utilisation of camera arrays, which are devices that sample multiple views of the same scene. Using a camera array is a simple method for acquiring a sparse sample of the light field, where the position of the camera determines \textit{(s,t)} while the location of the pixel determines \textit{(u, v)} \cite{yao2016camarray}. The images captured from a camera array are mapped easily to the 4D light field.
+
+\textbf{TODO: Show a figure}
+
+\subsubsection{Epipolar Plane Images}
 
 \begin{figure}[tbp]
     \centering
@@ -125,7 +127,11 @@ This 4D realisation of the light field originated as a model of rendering 3D com
 
 One way that this geometric information can be easily visualised is by taking slices of the light field image in the \textit{s,u} or \textit{t, v} axes as shown in Figure \ref{epiplaneimg}. While the idea of taking a 2D slice from the 4D image can seem complex, the task of generating a so called `epipolar plane image' from a camera array is deceptively simple. Images captured from camera arrays can be stacked to form a solid volume, from which 2D slices can be sampled. Each of these slices yields an image characterised by sheared straight lines, encoding information about the geometry of the scene, including depth and occlusions \cite{bolles1987epiplane}. 
 
-The geometric information encoded in a light field sampling can alternatively be visualised by processing the image into a `focal stack'. Focal stacks closely resemble images with shallow depth of field such as those that can be captured from a commercial DSLR camera. Light field focal stacks differ from focus in the optical sense however in that they are synthetic and can be recomputed after the image has been taken, effectively allowing control over the depth of field and focal depth in post-processing. Focal stacks can be computed from camera array images by layering images over one another and taking the average value for each pixel. The result is that parts of the scene that closely overlap appear in focus while areas with poor overlap create a `bokeh' effect. More formally, if the relative pose of each camera is known, a specific focal stack for any desired depth can be computed by projecting each image onto the desired focal plane, and computing their average \cite{vaish2004parallax}.
+
+\subsubsection{Focal Stacks}
+The light field can alternatively be visualised by processing the image into a `focal stack'. Focal stacks closely resemble images with shallow depth of field such as those that can be captured from a commercial DSLR camera. Light field focal stacks differ from focus in the optical sense however in that they are synthetic and can be computed after the image has been taken, allowing control over depth of field and the focal plane in post-processing. Focal stacks can be computed from camera array images by layering images over one another and taking the average value for each pixel. The result is that parts of the scene that closely overlap appear in focus while areas with poor overlap create a `bokeh' effect. 
+
+% More formally, if the relative pose of each camera is known, a specific focal stack for any desired depth can be computed by projecting each image onto the desired focal plane, and computing their average \cite{vaish2004parallax}.
 
 These representations of the light field play an important role in this thesis project as we experiment with different methods for feeding light field images to the machine learning pipeline. An important consideration in any machine learning algorithm is the feature space - based on what particular inputs will the algorithm be making its decision? Raw images contain millions of measurements and thus represent an incredibly high-dimensional feature space for neural networks to process. Light field images are several times larger, and thus it is important that some form of dimensionality reduction is used to ease the training process. With the goal of investigating effective methods of feeding light fields to neural networks, this thesis will explore the use of three different light field formats as the entry point to the machine learning pipeline. The first two will be the focal stack, and epipolar plane image described above, interpreting the images as a 3 dimensional volume created by stacking 2 dimensional images on top of one another. The third will treat the light field as a 4 dimensional volume, requiring a 4D signal processing pipeline to fully take advantage of the dimensionality.
 
