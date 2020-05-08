@@ -66,18 +66,18 @@ Figure 5.5 shows 2 examples of true and estimated trajectories for the three inp
     \setcounter{subfigure}{0}
 \end{figure}
 
-Table 5.1 summarises the instatnaneous and cumulative errors for the three input methods. 
+Table 5.1 summarises the instantaneous and cumulative errors for the three input methods. 
  
 \begin{table}[htbp]
     \caption{Mean Absolute Instantaneous Error and Cumulative Error}
     \centering
     \begin{tabular}{@{}lll@{}}
         \toprule
-        Input Method        & Absolute Instantaneous Error   & Cumulative Error  \\
+        Input Method        & Absolute Instantaneous Error (mm)   & Cumulative Error (mm) \\
         \midrule 
-        Tiled EPI Polar Images & TODO & TODO \\
-        Focal Stacks & TODO & TODO \\
-        Volumetric Stacks & TODO & TODO \\
+        Tiled EPI Polar Images & \textbf{9.64} & \textbf{71.38} \\
+        Focal Stacks & 9.79 & 104.03 \\
+        Volumetric Stacks & 12.17 & 103.47 \\
         \bottomrule
         
     \end{tabular}
@@ -139,11 +139,11 @@ We carry this expectation because this variant of the pipeline generates a stron
     \centering
     \begin{tabular}{@{}lll@{}}
         \toprule
-        Input Method        & Absolute Instantaneous Error   & Cumulative Error  \\
+        Input Method        & Absolute Instantaneous Error (mm)  & Cumulative Error (mm)  \\
         \midrule 
-        Tiled EPI Polar Images & TODO & TODO \\
-        Focal Stacks & TODO & TODO \\
-        Volumetric Stacks & TODO & TODO \\
+        Tiled EPI Polar Images & \textbf{7.61} & \textbf{50.61} \\
+        Focal Stacks & 9.71 & 73.40 \\
+        Volumetric Stacks & 10.50 & 110.04 \\
         \bottomrule
         
     \end{tabular}
@@ -152,14 +152,21 @@ We carry this expectation because this variant of the pipeline generates a stron
 
 \subsection{Monocular Approach}
 
-\textbf{TODO: histograms of absolute instantaneous error}
+Importantly, we compare our results to the monocular approach using the algorithm suggested by \cite{zhou2017unsupervised}. In this instance, the pair of convolutional networks are not exposed to any sort of light field imagery - the input image is a single 2D image and the photometric warp is similarly performed on a single 2D image. 
 
 \begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth, height=3in]{images/result-examples/pose/errors/singlewarp-stack.png}
+    \caption{Instantaneous absolute errors when using \textbf{monocular imagery}.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
     \subfloat[Sequence 16]{
-        \includegraphics[height=3in]{images/result-examples/pose/trajectories/monocular/monocular-16.png}
+        \includegraphics[height=2.1in]{images/result-examples/pose/trajectories/monocular/monocular-16.png}
     }
     \subfloat[Sequence 44]{
-        \includegraphics[height=3in]{images/result-examples/pose/trajectories/monocular/monocular-44.png}
+        \includegraphics[height=2.1in]{images/result-examples/pose/trajectories/monocular/monocular-44.png}
     }
     \caption{Estimated and true trajectories using monocular imagery.}
     \setcounter{subfigure}{0}
@@ -179,7 +186,7 @@ We carry this expectation because this variant of the pipeline generates a stron
 \end{figure}
 \begin{figure}[H]
     \includegraphics[width=\textwidth]{images/result-examples/bargraphs/iare-vs-input-method.pdf}
-    \caption{While using light field reconstruction has a small advantage over single view reconstruction  in translational terms, we find that in terms of rotation the benefits are far more significant. Once again, the tiled EPI insertion strategy continues to demonstrate the smallest error in terms of rotation on our validation dataset.}
+    \caption{We find that in rotational terms, light-field-reconstruction far outperforms the single-view-reconstruction pipeline. Similarly, we find that once again, the tiled EPI insertion strategy demonstrates the smallest error in terms of rotation on our validation dataset.}
 \end{figure}
 \section{Depth and Photometric Reconstruction}
 
@@ -192,16 +199,16 @@ Another way we can evaluate the quality of our depth maps is to compare the phot
 \begin{figure}[H]
     \centering
     \subfloat[Input Image]{
-        \includegraphics[height=0in, width=1.45in]{images/blank.png}
+        \includegraphics[height=0in, width=1.4in]{images/blank.png}
     }
     \subfloat[Volumetric Stack]{
-        \includegraphics[height=0in, width=1.45in]{images/blank.png}
+        \includegraphics[height=0in, width=1.4in]{images/blank.png}
     }
     \subfloat[Focal Stack]{
-        \includegraphics[height=0in, width=1.45in]{images/blank.png}
+        \includegraphics[height=0in, width=1.4in]{images/blank.png}
     }
     \subfloat[Tiled EPIs]{
-        \includegraphics[height=0in, width=1.45in]{images/blank.png}
+        \includegraphics[height=0in, width=1.4in]{images/blank.png}
     }\\ 
     \subfloat{
         \includegraphics[height=1in]{images/result-examples/depth/16-18.png}
@@ -282,16 +289,16 @@ Another way we can evaluate the quality of our depth maps is to compare the phot
 \begin{figure}[H]
     \centering
     \subfloat[Input Image]{
-        \includegraphics[height=0in, width=1.45in]{images/blank.png}
+        \includegraphics[height=0in, width=1.40in]{images/blank.png}
     }
     \subfloat[Volumetric Stack]{
-        \includegraphics[height=0in, width=1.45in]{images/blank.png}
+        \includegraphics[height=0in, width=1.40in]{images/blank.png}
     }
     \subfloat[Focal Stack]{
-        \includegraphics[height=0in, width=1.45in]{images/blank.png}
+        \includegraphics[height=0in, width=1.40in]{images/blank.png}
     }
     \subfloat[Tiled EPIs]{
-        \includegraphics[height=0in, width=1.45in]{images/blank.png}
+        \includegraphics[height=0in, width=1.40in]{images/blank.png}
     }\\ 
     \subfloat{
         \includegraphics[height=1in]{images/result-examples/depth/16-18.png}
@@ -365,12 +372,140 @@ Another way we can evaluate the quality of our depth maps is to compare the phot
     \subfloat{
         \includegraphics[height=1in]{images/result-examples/depth/multiwarp/epi/51-69.png}
     }
+    \setcounter{subfigure}{0}
 \end{figure}
 
 
 \subsection{Monocular Approach}
+A useful comparison to make, is to the existing monocular approach. We observe from the following depth estimates that far less detail is resolved and that the depth maps appear much smoother. This is to be expected, as no 3D information is preserved in a 2D image, meaning that only learned 2D features can be used to infer depth. 
+
+\begin{figure}[H]
+    \centering
+    \subfloat[Input Image]{
+        \includegraphics[height=0in, width=1.40in]{images/blank.png}
+    }
+    \subfloat[Depth Esimtate]{
+        \includegraphics[height=0in, width=1.40in]{images/blank.png}
+    }
+    \subfloat[Input Image]{
+        \includegraphics[height=0in, width=1.40in]{images/blank.png}
+    }
+    \subfloat[Depth Estimate]{
+        \includegraphics[height=0in, width=1.40in]{images/blank.png}
+    }\\ 
+    \subfloat{
+        \includegraphics[height=1in]{images/result-examples/depth/16-18.png}
+    }
+    \subfloat{
+        \includegraphics[height=1in]{images/result-examples/depth/singlewarp/stack/16-18.png}
+    }
+    \subfloat{
+        \includegraphics[height=1in]{images/result-examples/depth/16-50.png}
+    }
+    \subfloat{
+        \includegraphics[height=1in]{images/result-examples/depth/singlewarp/stack/16-50.png}
+    }\\
+    \subfloat{
+        \includegraphics[height=1in]{images/result-examples/depth/44-0.png}
+    }
+    \subfloat{
+        \includegraphics[height=1in]{images/result-examples/depth/singlewarp/stack/44-0.png}
+    }
+    \subfloat{
+        \includegraphics[height=1in]{images/result-examples/depth/44-40.png}
+    }
+    \subfloat{
+        \includegraphics[height=1in]{images/result-examples/depth/singlewarp/stack/44-40.png}
+    }\\
+    \subfloat{
+        \includegraphics[height=1in]{images/result-examples/depth/50-10.png}
+    }
+    \subfloat{
+        \includegraphics[height=1in]{images/result-examples/depth/singlewarp/stack/50-10.png}
+    }
+    \subfloat{
+        \includegraphics[height=1in]{images/result-examples/depth/51-69.png}
+    }
+    \subfloat{
+        \includegraphics[height=1in]{images/result-examples/depth/singlewarp/stack/51-69.png}
+    }
+    \setcounter{subfigure}{0}
+\end{figure}
+
+\subsection{Inspecting the Photometric Warp}
+
+Another useful result for inspection is the \textit{difference image} - this shows the pixel-wise difference between the photometrically warped output of our algorithm, and the target image. Inspecting the two images side-by-side and discerning the difference is a challenging task, and so with the aid of the difference image we make the difference between the two images clearer.
+
+Below, we show some examples of the target image (the image to be reconstructed), the output from photometric reconstruction, and the difference image. We show examples for the best-performing version of our algorithm - using epipolar plane images as the input format with light-field-reconstruction used as the training pipeline. 
+
+\begin{figure}[H]
+    \centering
+    \subfloat[Target Image]{
+        \includegraphics[height=0in, width=1.85in]{images/blank.png}
+    }
+    \subfloat[Reconstructed Image]{
+        \includegraphics[height=0in, width=1.85in]{images/blank.png}
+    }
+    \subfloat[Difference]{
+        \includegraphics[height=0in, width=1.85in]{images/blank.png}
+    }\\
+    \subfloat{
+        \includegraphics[height=1.4in]{images/result-examples/warps/seq16/input.png}
+    }
+    \subfloat{
+        \includegraphics[height=1.4in]{images/result-examples/warps/seq16/warped.png}
+    }
+    \subfloat{
+        \includegraphics[height=1.4in]{images/result-examples/warps/seq16/diff.png}
+    }\\
+    \subfloat{
+        \includegraphics[height=1.4in]{images/result-examples/warps/seq44/input.png}
+    }
+    \subfloat{
+        \includegraphics[height=1.4in]{images/result-examples/warps/seq44/warped.png}
+    }
+    \subfloat{
+        \includegraphics[height=1.4in]{images/result-examples/warps/seq44/diff.png}
+    }\\ 
+    \subfloat{
+        \includegraphics[height=1.4in]{images/result-examples/warps/seq51/input.png}
+    }
+    \subfloat{
+        \includegraphics[height=1.4in]{images/result-examples/warps/seq51/warped.png}
+    }
+    \subfloat{
+        \includegraphics[height=1.4in]{images/result-examples/warps/seq51/diff.png}
+    }\\
+\end{figure}
+
+Notably, we observe that the reconstructed image exhibits reduced clarity compared to the target image. Not unexpectedly, we find that the largest errors occur around 3D depth discontinuities - where occluders coming into and out-of view affect the correctness of our image-based sampling strategy. Similarly, textured regions of the image also exhibit heavy losses, as even small errors in the pose and depth estimate exacerbate the photometric warp error around these regions.
 
 \subsection{Comparison between Approaches and Summary}
+
+\begin{figure}
+\includegraphics[width=\textwidth]{images/result-examples/bargraphs/photometric-error-vs-inputmethod.pdf}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
