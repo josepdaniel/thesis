@@ -186,11 +186,11 @@ Importantly, we compare our results to the monocular approach using the algorith
 \end{figure}
 \begin{figure}[H]
     \includegraphics[width=\textwidth]{images/result-examples/bargraphs/iare-vs-input-method.pdf}
-    \caption{We find that in rotational terms, light-field-reconstruction far outperforms the single-view-reconstruction pipeline. Similarly, we find that once again, the tiled EPI insertion strategy demonstrates the smallest error in terms of rotation on our validation dataset.}
+    \caption{We find that in rotational terms, light-field-reconstruction far outperforms the single-view-reconstruction pipeline. Similarly, we find that once again, the tiled EPI insertion strategy exhibits the smallest error in terms of rotation on our validation dataset.}
 \end{figure}
 \section{Depth and Photometric Reconstruction}
 
-Aside from pose predictions and trajectories, our pipeline also generates depth-map predictions. In this section, we evaluate these outputs. Because our data acquisition did not include the collection of ground-truth depth data, we must find more creative ways of evaluating depth. One way we can do this is by inspecting the visual quality of the depth maps, observing the artifacts and details resolved. For example, in the depth maps shown, we include a particularly challenging scenario that includes a wire-frame model of a flamingo. 
+Aside from pose predictions and trajectories, our pipeline also generates depth-map predictions. In this section, we evaluate these outputs. Because our data acquisition methodology did not include the collection of ground-truth depth data, we must find more creative ways of evaluating depth. One way we can do this is by inspecting the visual quality of the depth maps, observing the artifacts and details resolved. For example, in the depth maps shown, we include a particularly challenging scenario that includes a wire-frame model of a flamingo. 
 
 Another way we can evaluate the quality of our depth maps is to compare the photometric loss from image synthesis. Comparing the synthesised image with the ground-truth image, we can compute a difference-image which shows the magnitude of the error in rendering the synthesised image.
 
@@ -484,6 +484,7 @@ Notably, we observe that the reconstructed image exhibits reduced clarity compar
 
 \begin{figure}
 \includegraphics[width=\textwidth]{images/result-examples/bargraphs/photometric-error-vs-inputmethod.pdf}
+\caption{The use of light-field-reconstruction to supervise the learning process consistently outperforms single-view reconstruction in terms of photometric error, for all of our tested input methods.}
 \end{figure}
 
 
