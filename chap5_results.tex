@@ -16,7 +16,7 @@ In each of our experiments, we use the same training dataset of 9000 grayscale i
 An important metric of error that we use to evaluate pose prediction, is the \textit{absolute instantaneous error} for each of the 6 degrees-of-freedom that are estimated. This metric describes the magnitude of the error between the predicted and the true component. As described in Chapter 4, we have collected ground-truth pose data using a robotic manipulator platform with a repeatability of $\pm 0.01$ millimeters, thus allowing a strong evaluation of pose-estimation. Meanwhile, we can evaluate each pipeline's effectiveness in estimating the \textit{average cumulative error} by comparing the true trajectory with the predicted trajectory. 
 
 
-\subsection{Single-view Reconstruction Approach}
+\subsection{Single-View Reconstruction Approach}
 
 The following histograms summarise 400 observations of the absolute instantaneous error for each of the 6 degrees of freedom (translation and rotation in X, Y and Z), over three input methods (tiled epipolar images, focal stacks, and volumetric stacks).
 
@@ -84,7 +84,7 @@ Table 5.1 summarises the instantaneous and cumulative errors for the three input
 \end{table}
 
 
-\subsection{Light field Reconstruction Appraoch}
+\subsection{Light Field Reconstruction Approach}
 
 Here we describe the performance of the second variant of our suggested pipeline, using the known camera configuration to photometrically warp the complete light field. Because this pipeline incorporates known information about the relationship between individual sub-apertures on the camera module, we expect this pipeline to demonstrate improved performance in pose estimation and scale-awareness.
 
@@ -174,7 +174,7 @@ Importantly, we compare our results to the monocular approach using the algorith
 
 
 
-\subsection{Comparison between Approaches and Summary}
+\subsection{Comparison Between Approaches and Summary}
 
 \begin{figure}[H]
     \includegraphics[width=\textwidth]{images/result-examples/bargraphs/iate-vs-inputmethod.pdf}
@@ -195,7 +195,7 @@ Aside from pose predictions and trajectories, our pipeline also generates depth-
 Another way we can evaluate the quality of our depth maps is to compare the photometric loss from image synthesis. Comparing the synthesised image with the ground-truth image, we can compute a difference-image which shows the magnitude of the error in rendering the synthesised image.
 
 
-\subsection{Single-view Reconstruction Approach}
+\subsection{Single-View Reconstruction Approach}
 \begin{figure}[H]
     \centering
     \subfloat[Input Image]{
@@ -285,7 +285,7 @@ Another way we can evaluate the quality of our depth maps is to compare the phot
     \setcounter{subfigure}{0}
     
 \end{figure}
-\subsection{Light field Reconstruction Approach}
+\subsection{Light Field Reconstruction Approach}
 \begin{figure}[H]
     \centering
     \subfloat[Input Image]{
@@ -480,7 +480,7 @@ Below, we show some examples of the target image (the image to be reconstructed)
 
 Notably, we observe that the reconstructed image exhibits reduced clarity compared to the target image. Not unexpectedly, we find that the largest errors occur around 3D depth discontinuities - where occluders coming into and out-of view affect the correctness of our image-based sampling strategy. Similarly, textured regions of the image also exhibit heavy losses, as even small errors in the pose and depth estimate exacerbate the photometric warp error around these regions.
 
-\subsection{Comparison between Approaches and Summary}
+\subsection{Comparison Between Approaches and Summary}
 
 \begin{figure}
 \includegraphics[width=\textwidth]{images/result-examples/bargraphs/photometric-error-vs-inputmethod.pdf}

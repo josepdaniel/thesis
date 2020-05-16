@@ -79,7 +79,6 @@ Epipolar geometry describes the relationship between two cameras, and imposes a 
 The Fundamental matrix thus describes the rotation and translation between two cameras up to scale. Any point projected from pixel coordinate $[u_1, v_1, 1]$ must lie on the epipolar line in the second image, which is formed by the intersection of the epipolar plane and the imaging plane. 
 
 
-
 \section{The 4D Light Field}
 Light field imaging has emerged as a powerful tool in computer vision for robotics, offering a rich higher-dimensional representation than what can be captured by conventional optics. The underlying principle used to describe the light field is the plenoptic function, a 7-dimensional mapping that assigns radiance values to the light rays at every position in space, in every orientation, at all wavelengths, throughout all of time \cite{adelson1991plenoptic}. This can be formally expressed as $L(x,y,z,\theta, \phi, \lambda, t)$, and measured in $W/m^2/sr/nm/s$. 
 
@@ -156,3 +155,12 @@ Convolutional neural networks (CNN's) are similar to multilayer perceptrons, but
 
 
 CNN's are thus popular `feature extractors' in computer vision - their ability to learn to respond to different types of stimuli mean that they have been used as a dimensionality downsampling tool, taking the millions of dimensions present in digital images  and compressing them to a feature space with a much smaller number of parameters. Closely related is the convolutional upsampling operation which performs the inverse - taking a feature space and learning to upsample that feature space into something meaningful \cite{long2014fcn}. This has given rise to a particular topology of CNN called the encoder-decoder architecture, which we take advantage of to predict depth (described in detail in Chapter 4). The encoder part of a CNN is composed of a series of convolutional downsampling operations - this can be thought of as finding an efficient compression of the information stored in the image. The decoder subsequently uses this compressed form of the information to extract some meaningful information about it. One example where this architecture has been used is in \cite{long2014fcn}, which outputs a classification for each pixel in the image. In this thesis, a fully convolutional encoder-decoder architecture will be used for a similar purpose, but rather than discretely classifying each pixel, we regress their depth values (more precisely, their \textit{z}-coordinate). 
+
+
+\section{TODO: Visual Odometry}
+\textbf{TODO: Brief introduction to VO main concepts - feature based and learning based. Plenoptic is discussed in next chapter.}
+
+\section{TODO: Depth Estimation}
+\textbf{TODO: feature based - SfM pipelines}\\
+\textbf{TODO: stereo matching, disparity maps}\\
+\textbf{TODO: plenoptic - gradient-depth constraint}

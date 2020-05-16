@@ -9,24 +9,24 @@ We recognise that deep neural networks are opaque in nature - their millions of 
 The first part of this chapter discusses the compromises between our three unsupervised learning variants. The second part compares the different insertion methods, investigating the likely causes for the disparate results between them. Finally, we compare our results to state-of-the-art monocular approaches. 
 
 
-\section{Comparison between Unsupervised Learning Pipelines}
+\section{Comparison Between Unsupervised Learning Pipelines}
 
-In this section, we present a discussion on the different impacts of the two unsupervised learning pipelines (monocular, single-view-reconstruction and light-field-reconstruction). Specifically, we address three trade-offs which impact the performance of our convolutional networks - the strength of the supervision signal, the enforcement of scale consistency, and the computational cost involved. 
+In this section, we present a discussion on the different impacts of the two unsupervised learning pipelines (monocular, single-view-reconstruction and light-field-reconstruction). Specifically, we address four trade-offs which impact the performance of our convolutional networks - the strength of the supervision signal, the enforcement of scale consistency, pipeline flexibility, and the computational cost. 
 
-\subsubsection{Strengthening the Supervision Signal}
+\subsection{Strengthening the Supervision Signal}
 One question that remained, prior to the analysis of our results, was whether the photometric reconstruction of the entire light-field might lead to the unstable propagation of errors through our network. As the number of pixels being reconstructed increases, so to does the magnitude of the loss function. As the loss signal grows, there remains a possibility that the partial derivatives of the network's parameters with respect to the loss grow large, causing the optimisation algorithm to apply unstable updates to the network's parameters. We had prepared strategies for mitigating this instability in the case that it did occur, such as reducing the learning-rate and gradient-clipping, however we found that training progressed smoothly using the light-field reconstruction approach. We conclude from this that not only is photometrically reconstructing the complete light-field a stable formation of a loss function, but it is indeed beneficial to the learning of depth and visual odometry. Supporting this conclusion, we observe that the light-field-reconstruction pipeline supports our networks in locating a lower local minimum, with an average of a 10.3\% reduction in photometric error compared to single-view-reconstruction across all our experiments. 
 
 Importantly, we distinguish between simply magnifying the supervision signal, and using light-field-reconstruction to obtain a heavier loss function. If we relied on the former strategy, we might simply increase the learning-rate to penalise errors more harshly - which leads to instability in training. We conclude that by photometrically reconstructing the 4D light field, we teach our networks something far more useful about geometry and the light field that enables them to locate a smaller minimum in the topographic loss landscape.
 
-\subsubsection{Enforcing Scale Consistency in Translation and Rotation}
+\subsection{Enforcing Scale Consistency in Translation and Rotation}
 Aside from applying a heavier supervision loss signal to the two networks, the light-field-reconstruction method also penalises scale inconsistencies. We discussed in Chapters 3 and 4 the weaknesses of monocular approaches - because the information used to generate the photometric warp is sourced from a single pinhole view of the scene, we are restricted to 2D data. When adjusting the approach to reconstruct the entire 4D light field however, our networks are required to learn the relationship between the sampled image data and the geometry of the scene. In the monocular case, a depth network in the absence of better information will happily estimate a twice-as-large room, if of course the pose network estimates a twice-as-large translation. Notably however, this does not extend to rotations - the image formed by scaling the rotation of the camera is not supplemented by scaling the magnitude of the depth map. It is surprising then, that the light-field-reconstruction method produces the largest boost in performance in terms of rotation, not in translation. We observe that when using the light-field-reconstruction pipeline, the rotation error estimate is on average 39\% better across all input methods. Translational errors on the other hand experienced only a 9.7\% performance improvement.
 
 We speculate that this performance boost arises from the combination of a stronger supervision signal and the enforcing of scale consistency through the 4D warp. The stronger supervision signal helps the two convolutional networks find a smaller local minimum in the loss topography, while the scale-consistency constraint provides improved certainty in the scale of the translation, the geometry of the scene, the relationship between sub-apertures, and the ability to resolve depth in the scene. Rotational errors are more likely to exacerbate the photometric loss compared to translational errors, and through this combination of factors, we believe that our pose network has learned a more robust function for estimating rotations. 
 
-\subsubsection{Compromising on Pipeline Flexibility}
+\subsection{Compromising on Pipeline Flexibility}
 An important capability that arises from our pipeline is the ability to perform visual odometry and depth estimation using an \textit{uncalibrated} camera array. The attractiveness in this approach is that the algorithm is suitable for use in mobile robotics which are frequently subjected to temperature change, vibration and shock. This ideally means that we have minimal prior knowledge about the camera being used - however we acknowledge that the light-field-reconstruction pipeline sacrifices some flexibility, as this variant requires prior knowledge of the \textit{shape} of the camera being used. However, we also argue that even in the light-field-reconstruction case, the absolute magnitude of the relationship between sub-apertures are not required. While depth and pose estimates will indeed be adversely affected by these phenomena, we argue that even as the calibration error of the camera array accumulates, the `best' solution to the photometric-warp problem (i.e. the global minimum for the photometric warp loss) - which our neural networks are tasked with solving - converges to the correct pose and depth estimate. This is an error that cannot be ignored using stereo or even trinocular imagery, but as the number of sub-apertures increase, the `best' photometric warp solution converges to that generated using the correct pose and depth. 
 
-\subsubsection{Computational Cost}
+\subsection{Computational Cost}
 Both of our suggested pipelines operate on arbitrarily large images, meaning images may be cropped and scaled, as long as the intrinsic matrix $K$ is also scaled appropriately. The execution time for inference using both algorithms is predictable and repeatable as long as the dimensionality of the input remains constant, even as the model is trained and fine-tuned on new data. This is an attractive capability in robotics, where prior knowledge of an algorithm's bandwidth greatly simplifies system design. 
 
 
@@ -59,6 +59,11 @@ While we have presented two ideas for how this result may have arisen, we believ
 
 \textbf{TODO: include figure of artifacts from shift-sum focusing}
 
-\section{Comparison to existing Monocular Approaches}
+\section{Comparison to Existing Monocular Approaches}
 
 Our experimental data indicates that, unsurprisingly, our approach using light field data outperforms the state-of-the-art monocular approach described in \cite{zhou2017unsupervised}. We expected this to be the case, as the data we have collected and provided to our networks is far more informative than simple monocular imagery when used for geometry based learning. Our models outperform the monocular approach not only in depth and odometry errors, but also in the average photometric warp error - each image that is synthesised is a better match for the target image using our pipeline than in the monocular pipeline. 
+
+Not only are the pose errors and photometric losses lower using light field data, but we also show empirically show that it exhibits improved scale consistency, and metric depth and pose estimates.
+
+\subsection{TODO: Scale Consistency}
+\subsection{TODO: Metric Depth and Pose}
