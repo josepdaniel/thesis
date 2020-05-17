@@ -21,14 +21,18 @@ The UR5E uses a standard interface plate for attaching end-effectors such as gri
 A client library for communicating with the UR5E was developed in python, establishing a TCP/IP connection with the robot over the local network, allowing both movement commands to be sent to the robot, and feedback data about the end-effector's pose to be streamed back to the client PC. The client library also provides functionality for computing trajectories and corresponding joint angles, using the PyBullet \cite{pybullet2017} physics engine and the known kinematic model. One useful trajectory function from our library procedurally generates waypoints while keeping the camera's field-of-view trained on the scene, using a stringent collision-checking mechanism to enable autonomous data-capture. 
 
 \subsection{Imagery}
-The specific imaging device being used is manufactured by EPIImaging, and consists of 17 subapertures. The communication interface with the camera is a network connection serving image data using the HTTP protocol via a REST API. Both rectified and un-rectified imagery can be retrieved, and the format of the returned data is a $17\times 3 \times 1280 \times 960$ stream of raw bytes representing 8-bit pixel values from each of the 17 sensors. A simple client library was developed in python to automate API requests, and perform decoding of the pixel data.
+The specific imaging device being used is manufactured by EPIImaging, and consists of 17 sub-apertures. The communication interface with the camera is a network connection serving image data using the HTTP protocol via a REST API. Both rectified and un-rectified imagery can be retrieved, and the format of the returned data is a $17\times 3 \times 1280 \times 960$ stream of raw bytes representing 8-bit pixel values from each of the 17 sensors. A simple client library was developed in python to automate API requests, and perform decoding of the pixel data.
 
 \section{Architectural Overview}
-In this section, we derive a pipeline for simultaneous depth and visual odometry using light field data. Our pipeline is constructed modularly, so to build a precise intuition for how our pipeline operates, we begin by providing an architectural overview of our pipeline, followed by detailed descriptions of each individual module. We first introduce the CNN modules used to estimate pose and depth. Subsequently we'll discuss strategies for forming meaningful loss-functions to train our pair of networks using a photometric-warp loss-module. Next, we launch a discussion on the input formats, altering how light field data is fed to our networks, discussing the comparable advantages and disadvantages of each. Finally, we introduce some modifications to the photometric-warp loss-module that sacrifices some flexibility in exchange for more robust depth and pose estimates that more-fully exploit information in the light field. 
+In this section, we derive a pipeline for simultaneous depth and visual odometry using light field data. Our pipeline is constructed modularly, so to build a precise intuition for how our pipeline operates, we begin by providing an architectural overview, followed by detailed descriptions of each individual module. We introduce the CNN modules used to estimate pose and depth. Subsequently we'll discuss strategies for forming meaningful loss-functions to train our pair of networks using a photometric-warp loss-module. Next, we launch a discussion on the input formats, altering how light field data is fed to our networks, discussing the comparable advantages and disadvantages of each. Finally, we introduce some modifications to the photometric-warp loss-module that sacrifices some flexibility in exchange for more robust depth and pose estimates that more-fully exploit information in the light field. 
 
-\subsection{TODO: Learning Pipeline Overview}
-\textbf{TODO: Pipeline diagram}\\
-\textbf{TODO: Figures showing depth and pose networks}
+\subsection{Learning Pipeline Overview}
+Like \cite{zhou2017unsupervised}, we exploit the properties of a moving camera - often dubbed `shape-from-motion' - to learn depth and visual odometry in an unsupervised manner. Our learning pipeline is composed of three central modules - depth estimation, pose estimation, and a bilinear interpolation photometric warp module. These three modules work cohesively to estimate a novel view of the scene - i.e. the next frame of video. Using our actual knowledge of what the next frame of video looks like, we compute a fully differentiable loss function which allows the application of a gradient update to the parameters of the depth and pose estimation modules. The architecture is illustrated in Figure 4.2.
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{images/archs/unifiedpipeline.pdf}
+    \caption{Our three main modules work together to estimate what the next frame of video looks like. Using our actual knowledge of what that frame looks like, we compute a photometric loss, which is back-propagated and used to apply gradient updates for the disparity and the pose networks.}
+\end{figure}
 
 \subsection{Pose Estimation}
 
@@ -55,11 +59,16 @@ We treat pose estimation as a regression problem, estimating three translational
     \label{posenet-layers}
 \end{table}
 
-Importantly, the translation and rotation are regressed relative to the \textit{camera} coordinate frame of the first image, whereas the UR5E returns absolute position and orientation in the \textit{world} coordinate frame. To validate our predictions we therefore need to compute the relative translation $P_{t1 \rightarrow t2}$ and rotation $R_{t1 \rightarrow t2}$ of the two images, given their absolute positions $P_{t1}, P_{t2}$ and orientation $R_{t1}, R_{t2}$ in the world frame. Concatenating translation and rotation into a single homogenous transform matrix $T = [R|t]$ allows us compute both relative rotation and translation in a single step, as:
+\begin{figure}
+    \includegraphics[width=\textwidth]{images/archs/unifiedarch.pdf}
+    \caption{The PoseNet architecture is a fully convolutional neural network. The input is of shape $H \times W \times N$, and the output shape is $6 \times 1 \times 1$ - one output for each of the 6 degrees of freedom predicted. Similarly, the DispNet architecture is a fully convolutional network that outputs disparity maps at two different scales (shown in red). Skip connections allows the incorporation of both high and low level features in estimating disparity. In the first variant of our algorithm, there is a single output channel, predicting a disparity map aligned with the center view of the camera array. In the second variant, there are $N$ output channels - one for each sub-aperture. These layers are displayed for illustrative purposes only, and are not to scale. }
+\end{figure}
 
-\begin{equation}
-T_{t1 \rightarrow 2} = T_{t1}^{-1} T_{t2}.
-\end{equation} Intuitively, this computation first computes the transform from pose 1 to the world frame, then from the world frame to pose 2. We can decompose this matrix into 3 translational and 3 rotational components. 
+% Importantly, the translation and rotation are regressed relative to the \textit{camera} coordinate frame of the first image, whereas the UR5E returns absolute position and orientation in the \textit{world} coordinate frame. To validate our predictions we therefore need to compute the relative translation $P_{t1 \rightarrow t2}$ and rotation $R_{t1 \rightarrow t2}$ of the two images, given their absolute positions $P_{t1}, P_{t2}$ and orientation $R_{t1}, R_{t2}$ in the world frame. Concatenating translation and rotation into a single homogenous transform matrix $T = [R|t]$ allows us compute both relative rotation and translation in a single step, as:
+
+% \begin{equation}
+% T_{t1 \rightarrow 2} = T_{t1}^{-1} T_{t2}.
+% \end{equation} Intuitively, this computation first computes the transform from pose 1 to the world frame, then from the world frame to pose 2. We can decompose this matrix into 3 translational and 3 rotational components. 
 
 
 \subsection{Depth Estimation}
@@ -108,9 +117,7 @@ We have now described one CNN tasked with estimating a per-pixel depth map of th
 
 \subsubsection{A Differentiable Loss Function with Image Based Rendering}
 
-\textbf{TODO: Diagram showing photometric reconstruction}
-
-As described in Chapter 3, given an estimate for these two pieces of information, we are able to synthesise approximate images of the scene as seen from a nearby viewpoint. We take advantage of this fact to form a photometric-warp loss, similar to \cite{zhou2017unsupervised}. 
+As described in Chapter 3, given an estimate for both depth and pose, we can synthesise approximate images of the scene as seen from nearby viewpoints. We take advantage of this fact to form a photometric-warp loss, similar to \cite{zhou2017unsupervised}. 
 
 As described in Chapter 3, the procedure for this is to first project each pixel from the first light field $LF_1$ to a 3D point cloud using the known camera intrinsics and estimated depth values. Recall that the matrix $K$ is the intrinsics matrix introduced in Chapter 2, which maps pixel coordinates to ray directions for a pinhole camera. Using the intrinsics and the regressed depth map $D(s_0, t_0, u, v)$, we can project each pixel $[u, v]^T$ to a 3D point cloud $Q$
 
@@ -124,12 +131,35 @@ As described in Chapter 3, the procedure for this is to first project each pixel
 \end{equation}
 
 The pixels $[s_0, t_0, \hat{u}, \hat{v}]$ are subsequently sampled to populate a new array, forming our synthesised image. This transform is equivalent to constructing a 3D model of the scene using our depth values, moving an imaginary camera by $[R|t]$ and taking a virtual snapshot of the scene from this new angle, the snapshot being the resulting photometric warp. \\
-\textbf{TODO: Discuss limitations of approach - holes around occlusions}\\
-\textbf{TODO: Figure of depth map, synthesised image and target image}
+
+\begin{figure}
+    \subfloat[Target Image]{
+        \includegraphics[width=0.24\textwidth]{images/result-examples/warps/seq51/input.png}
+    }
+    \subfloat[Predicted Depth]{
+        \includegraphics[width=0.24\textwidth]{images/result-examples/depth/multiwarp/epi/51-69.png}
+    }
+    \subfloat[Synthesised Image]{
+        \includegraphics[width=0.24\textwidth]{images/result-examples/warps/seq51/warped.png}
+    }
+    \subfloat[Photometric Error]{
+        \includegraphics[width=0.24\textwidth]{images/result-examples/warps/seq51/diff.png}
+    }
+
+    \caption{To recreate the target image, we use the depth map to calculate the pixel coordinates of the source image from which to sample. The source image is then sampled using bilinear interpolation to reconstruct the synthesised image. The reconstructed and target image are then compared to calculate the photometric error.}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{images/interp.pdf}
+    \caption{We use bilinear interpolation as the differentiable sampling process, just as suggested in \cite{zhou2017unsupervised}. To populate each pixel value $p_t$ in the target image, each pixel is projected to its corresponding coordinate in the source image, and sampled using bilinear interpolation.}
+\end{figure}
 
 More broadly, the practice we have described here is referred to as `image based rendering', which is a related, but slightly different paradigm from the rasterization, shaders and textures typically used in geometry-based rendering engines. In image based rendering, we instead synthesise viewpoints using existing image data. In a sense, image based rendering simply shuffles the pixels of an existing image around, according to some pre-defined rules. In our case, we derive the shuffling-rules using 3D data inferred by our depth and pose networks. 
 
 The perceptive reader may have noticed that the pixel value $p_2 = [s_0, t_0, \hat{u}, \hat{v}]$ is continuous in $u$ and $v$, while pixel coordinates are, by necessity, discretely valued. A naive solution is to discretise the coordinate $p_2$ by sampling its nearest-neighbouring pixel. We must remember however that neural networks rely on the chain rule of calculus to perform back-propagation, and so whatever sampling regime we choose must be differentiable. We therefore turn to bilinear sampling, as described in Chapter 3 as a differentiable sampling mechanism. Its operation and derivatives are described in equations 3.3-3.5.
+
+This sampling-based approach is limited in regions surrounding occluders. When the motion of the camera dis-occludes part of the scene in the target image, the sampler is tasked with recreating an image using information that it does not have. Thus, we are most likely to see 3D boundaries as one of the main sources of error. Furthermore, this formation of a loss function assumes a texturally rich image which can be used to compute the error. These effects are apparent in Figure 4.4 (d), where we observe heavy errors around 3D boundaries, as well as texturally rich regions of the image.
 
 
 \subsection{Input Methods}
@@ -146,20 +176,23 @@ The most straightforward of our three methods, this technique involves taking \t
 \subsubsection{Focal Stacks}
 Focal stacks are constructed as a superposition of 2D images from several sub-apertures, creating interference in regions of the image that are `out-of-focus', while keeping `in-focus' elements of the image crisp. A focal stack specifically encodes depth in the form of interference at each region of the image. Thus, we might expect a CNN trained on this type of imagery to learn to decode in- and out-of-focus parts of the image, using this information to estimate depth and pose. Importantly, we must consider that our spatial sampling rate (distance between sub-apertures) is significantly lower than our angular sampling rate (distance between pixels). As a result our focal stacks exhibit significant aliasing effects which may impact training.
 
-\textbf{TODO: Figure of a focal stack showing artifacts.}
-
-
 \subsubsection{Tiled Epipolar Plane Images}
 In Chapter 3 we saw that Wang et al. \cite{wang2016lfcnn} sliced the 4D light field in two different ways, first as perspective-projection images, and secondly as orthographic-projection images. By showing slices in \textit{S, T} and \textit{U, V}, Wang et al. suggests that a convolutional network is able to learn to approximate 4D signal processing functions without the computational overhead of convolving in 4 dimensions. Due to the specific constraints of the camera array being used (and indeed of any camera array not arranged as a regular grid of sub-apertures), there are challenges associated with slicing our light field data as orthographic images. We suggest that there is indeed another meaningful way of slicing the 4D light field into 2D arrays - namely as epipolar plane images. As we discussed in Chapter 2, epipolar plane images are \textit{S, U} or \textit{T, V} slices of the light field, encoding depth and occlusion in the slope of their characteristic sheared lines. With our input strategy, we tile \textit{T, V} slices side-by-side, and \textit{S, U} slices top-to-bottom. 
 
-\begin{figure}[h]
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/fruitfocus.png}
+    \caption{While synthetically changing the focal plane brings different parts of the scene into focus, the trade-off is the aliasing and artifacts that arise. This is especially clear around the boundaries of the fruit shown here - not only are they blurry, but distinct artifacts and ghostlike edges are clearly visible.}
+\end{figure}
+
+\begin{figure}[H]
     \centering 
     \includegraphics[width=6in]{images/epitile_3.png}
     \includegraphics[width=6in]{images/epitile_2.png}
     \caption{Tiled \textit{U, V} slices (top): this is an intuitive way of slicing the light field, which tiles images from each sub-aperture side-by-side. Tiled \textit{T, V} slices (bottom): somewhat less intuitively, this method instead tiles the vertical epipolar-plane images side-by-side. We call these \textit{wide} EPIs. As shown, the overall dimensionality and shape of the light field is unchanged, we simply present the information in a different order, revealing different encodings of the captured scene. We can also tile the light field as \textit{S, U} slices, stacking them vertically, which we refer to as \textit{tall} EPIs.}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering 
     \includegraphics[width=6in]{images/encoderpipe.png}
     \caption{Our proposed encoder module which encodes the tiled EPIs, downsampling them to the shape expected by our depth and pose networks. Notably, features which have been learned in \textit{T, V} as well as \textit{S, U} are concatenated with the stacked \textit{U, V} slices (exactly as seen in our first input method.) For brevity, we have only shown a small patch of the tall and wide EPIs, but the reader is reminded that these tilings are in fact very tall, and very wide.}
@@ -186,8 +219,8 @@ The modification described here is straightforward, but it sacrifices some flexi
     \caption{Given knowledge of how one sub-aperture has moved through space, we can also compute how any other sub-aperture has moved by chaining the transforms in the order shown.}
 \end{figure}
 
-Instead of using photometric warp to reconstruct the image of a single sub-aperture, this modification adjusts the pipeline such that instead, we now reconstruct the entire light field. The camera array is a rigid body, meaning that as it rotates and translates through space, the sub-apertures also rotate and translate relative to each other, but in a very well defined way. Say we know the homogenous transform  $T_{a \rightarrow b}$ of sub-aperture $\mathcal{N}$ between two frames of video, we can compute the global transform of any other sub-aperture $\mathcal{M}$ by chaining together the homogenous transforms as shown in Figure 4.4.
+Instead of using photometric warp to reconstruct the image of a single sub-aperture, this modification adjusts the pipeline such that instead, we now reconstruct the entire light field. The camera array is a rigid body, meaning that as it rotates and translates through space, the sub-apertures also rotate and translate relative to each other, but in a very well defined way. Say we know the homogenous transform  $T_{a \rightarrow b}$ of sub-aperture $\mathcal{N}$ between two frames of video, we can compute the global transform of any other sub-aperture $\mathcal{M}$ by chaining together the homogenous transforms as shown in Figure 4.9.
 
-To exploit this knowledge, we modify the depth prediction network to now output $N$ depth maps. Each depth map should be aligned with exactly one sub-aperture, so we can reconstruct its corresponding image. The pose network continues to estimate only the pose of the central sub-aperture, but the frame-to-frame pose for each pinhole is computed from the chained transform shown in Figure 4.4 (where $T_{a\rightarrow b}$ is the PoseNet output). For each sub-aperture we perform the same photometric warp with bilinear interpolation to synthesise $N$ viewpoints.
+To exploit this knowledge, we modify the depth prediction network to now output $N$ depth maps. Each depth map should be aligned with exactly one sub-aperture, so we can reconstruct its corresponding image. The pose network continues to estimate only the pose of the central sub-aperture, but the frame-to-frame pose for each pinhole is computed from the chained transform shown in Figure 4.9 (where $T_{a\rightarrow b}$ is the PoseNet output). For each sub-aperture we perform the same photometric warp with bilinear interpolation to synthesise $N$ viewpoints.
 
 In addition to imposing a stronger supervision signal, this pipeline guarantees to a certain extent that our pose and depth modules predict depth at a consistent scale between video frames. We have enforced a photometric warp that requires prior knowledge of the shape of the camera, and with this information now making up a part of the photometric-warp pipeline, our neural networks are forced to learn to use this information to estimate depth and pose at the correct scale. To see why this is true, we should consider the effect on the loss function for an incorrectly estimated scale-factor. We may find that estimating a twice-as-large room for a twice-as-large translation works to photometrically warp the center-view well, but this will be disastrous for each of the other $N-1$ sub-apertures being warped. In short, our networks are penalised harshly for incorrect scale estimates.

@@ -102,11 +102,9 @@ Also illustrated is a common convention for describing light rays in this 4 dime
 This 4D realisation of the light field originated as a model of rendering 3D computer graphics, one which shifted emphasis from notions of texture and geometric primitives to modeling the behaviour of light rays permeating space. Since then however, the conceptual framework of the light field has drawn a following of researchers at an intersecting region of signal processing, computer vision and robotics \cite{dansereau2014phd}. 
 
 \subsection{Visualising the Light Field}
-\subsubsection{TODO: 2D Grids of 2D Images}
 
-Light field imaging finds a foothold in this work through the utilisation of camera arrays, which are devices that sample multiple views of the same scene. Using a camera array is a simple method for acquiring a sparse sample of the light field, where the position of the camera determines \textit{(s,t)} while the location of the pixel determines \textit{(u, v)} \cite{yao2016camarray}. The images captured from a camera array are mapped easily to the 4D light field.
+Light field imaging finds a foothold in this work through the utilisation of camera arrays, which are devices that sample multiple views of the same scene. Using a camera array is a simple method for acquiring a sparse sample of the light field, where the position of the camera determines \textit{(s,t)} while the location of the pixel determines \textit{(u, v)} \cite{yao2016camarray}. The images captured from a camera array are mapped easily to the 4D light field. An example of a camera array - the device used for collecting the data which enabled much of this work - is shown in Figure 2.4. 
 
-\textbf{TODO: Show a figure}
 
 \subsubsection{Epipolar Plane Images}
 
@@ -157,10 +155,10 @@ Convolutional neural networks (CNN's) are similar to multilayer perceptrons, but
 CNN's are thus popular `feature extractors' in computer vision - their ability to learn to respond to different types of stimuli mean that they have been used as a dimensionality downsampling tool, taking the millions of dimensions present in digital images  and compressing them to a feature space with a much smaller number of parameters. Closely related is the convolutional upsampling operation which performs the inverse - taking a feature space and learning to upsample that feature space into something meaningful \cite{long2014fcn}. This has given rise to a particular topology of CNN called the encoder-decoder architecture, which we take advantage of to predict depth (described in detail in Chapter 4). The encoder part of a CNN is composed of a series of convolutional downsampling operations - this can be thought of as finding an efficient compression of the information stored in the image. The decoder subsequently uses this compressed form of the information to extract some meaningful information about it. One example where this architecture has been used is in \cite{long2014fcn}, which outputs a classification for each pixel in the image. In this thesis, a fully convolutional encoder-decoder architecture will be used for a similar purpose, but rather than discretely classifying each pixel, we regress their depth values (more precisely, their \textit{z}-coordinate). 
 
 
-\section{TODO: Visual Odometry}
-\textbf{TODO: Brief introduction to VO main concepts - feature based and learning based. Plenoptic is discussed in next chapter.}
+% \section{TODO: Visual Odometry}
+% \textbf{TODO: Brief introduction to VO main concepts - feature based and learning based. Plenoptic is discussed in next chapter.}
 
-\section{TODO: Depth Estimation}
-\textbf{TODO: feature based - SfM pipelines}\\
-\textbf{TODO: stereo matching, disparity maps}\\
-\textbf{TODO: plenoptic - gradient-depth constraint}
+% \section{TODO: Depth Estimation}
+% \textbf{TODO: feature based - SfM pipelines}\\
+% \textbf{TODO: stereo matching, disparity maps}\\
+% \textbf{TODO: plenoptic - gradient-depth constraint}
