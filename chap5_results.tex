@@ -13,32 +13,21 @@ In each of our experiments, we use the same training dataset of 9000 grayscale i
 
 \section{Pose Estimation and Visual Odometry}
 
-An important metric of error that we use to evaluate pose prediction, is the \textit{absolute instantaneous error} for each of the 6 degrees-of-freedom that are estimated. This metric describes the magnitude of the error between the predicted and the true component. As described in Chapter 4, we have collected ground-truth pose data using a robotic manipulator platform with a repeatability of $\pm 0.01$ millimeters, thus allowing a strong evaluation of pose-estimation. Meanwhile, we can evaluate each pipeline's effectiveness in estimating the \textit{average cumulative error} by comparing the true trajectory with the predicted trajectory. 
-
+An important metric of error is the \textit{absolute instantaneous error} for each of the 6 degrees-of-freedom that are estimated. This metric describes the magnitude of the error between the predicted and the true component. As described in Chapter 4, we have collected ground-truth pose data using a robotic manipulator platform with a repeatability of $\pm 0.01$ millimeters. Meanwhile, we can evaluate each pipeline's effectiveness in estimating the \textit{average cumulative error} by comparing the true trajectory with the predicted trajectory. 
 
 \subsection{Single-View Reconstruction Approach}
 
-The following histograms summarise 400 observations of the absolute instantaneous error for each of the 6 degrees of freedom (translation and rotation in X, Y and Z), over three input methods (tiled epipolar images, focal stacks, and volumetric stacks).
+
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth, height=3.35in]{images/result-examples/pose/errors/singlewarp-epi.png}
-    \caption{Instantaneous absolute errors when \textbf{tiled epipolar images} are the input method.}
+    \includegraphics[width=\textwidth]{images/result-examples/pose/errors/sw_comparison_hist.png}
+    \caption[Histograms of instantaneous errors for each input method, using single-view reconstruction]{Histograms of instantaneous absolute errors, comparing our three input methods. Importantly, while the translational errors exhibit reasonably tight distributions, some outliers exist. Outliers such as these are likely to impact the cumulative error over the complete trajectory (especially if its occurrence is early in the video sequence), due to the cumulative nature of odometry errors.}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth, height=3.35in]{images/result-examples/pose/errors/singlewarp-focalstack-17-5.png}
-    \caption{Instantaneous absolute errors when \textbf{focal stacks} images are the input method.}
-\end{figure}
+The histogram in Figure 5.1 summarises 400 observations of the absolute instantaneous error for each of the 6 degrees of freedom (translation and rotation in X, Y and Z), over three input methods (tiled epipolar images, focal stacks, and volumetric stacks). 
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth, height=3.35in]{images/result-examples/pose/errors/singlewarp-stack.png}
-    \caption{Instantaneous absolute errors when \textbf{volumetric stacks} are the input method.}
-\end{figure}
-
-Figure 5.5 shows 2 examples of true and estimated trajectories for the three input methods. 
+Figures 5.2 and 5.3 show two examples of true and estimated trajectories for the three input methods. 
 
 \begin{figure}[H]
     \subfloat[Tiled EPIs]{
@@ -50,7 +39,7 @@ Figure 5.5 shows 2 examples of true and estimated trajectories for the three inp
     \subfloat[Volumetric Images]{
         \includegraphics[height=1.9in]{images/result-examples/pose/trajectories/singlewarp/sw-stack-16.png}
     }\\
-    \caption{Estimated and true trajectories for input sequence 16.}
+    \caption[Estimated and true trajectories for input sequence 16 using single-view reconstruction]{Estimated and true trajectories for input sequence 16.}
     \setcounter{subfigure}{0}
 
     \subfloat[Tiled EPIs]{
@@ -62,7 +51,7 @@ Figure 5.5 shows 2 examples of true and estimated trajectories for the three inp
     \subfloat[Volumetric Images]{
         \includegraphics[height=1.9in]{images/result-examples/pose/trajectories/singlewarp/sw-stack-44.png}
     }
-    \caption{Estimated and true trajectories for input sequence 44.}
+    \caption[Estimated and true trajectories for input sequence 44 using single-view reconstruction]{Estimated and true trajectories for input sequence 44.}
     \setcounter{subfigure}{0}
 \end{figure}
 
@@ -75,7 +64,7 @@ Table 5.1 summarises the instantaneous and cumulative errors for the three input
         \toprule
         Input Method        & Absolute Instantaneous Error (mm)   & Cumulative Error (mm) \\
         \midrule 
-        Tiled EPI Polar Images & \textbf{9.64} & \textbf{71.38} \\
+        Tiled EPIs & \textbf{9.64} & \textbf{71.38} \\
         Focal Stacks & 9.79 & 104.03 \\
         Volumetric Stacks & 12.17 & 103.47 \\
         \bottomrule
@@ -86,27 +75,15 @@ Table 5.1 summarises the instantaneous and cumulative errors for the three input
 
 \subsection{Light Field Reconstruction Approach}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/result-examples/pose/errors/mw_comparison_hist.png}
+    \caption[Histogram of instantaneous errors for each input method, using light field reconstruction]{Histograms of instantaneous absolute errors comparing our three input methods. In general, we observe that the error distributions using the light field reconstruction approach are generally tighter with shorter tails, compared with the single-view reconstruction approach.}
+\end{figure}
+
 Here we describe the performance of the second variant of our suggested pipeline, using the known camera configuration to photometrically warp the complete light field. Because this pipeline incorporates known information about the relationship between individual sub-apertures on the camera module, we expect this pipeline to demonstrate improved performance in pose estimation and scale-awareness.
 
 We carry this expectation because this variant of the pipeline generates a stronger supervision signal - the larger number of pixels being warped results in a significantly heavier loss for the same error, compared with the single-view reconstruction approach. Additionally, this variant carries a much smaller tolerance to scale inconsistencies due to the constraints imposed when incorporating multiple sub-apertures and their known relative spacing.
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth, height=3.2in]{images/result-examples/pose/errors/multiwarp-epi.png}
-    \caption{Instantaneous absolute errors when \textbf{tiled epipolar images} are the input method.}
-\end{figure}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth, height=3.2in]{images/result-examples/pose/errors/multiwarp-focalstack-17-5.png}
-    \caption{Instantaneous absolute errors when \textbf{focal stacks} are the input method.}
-\end{figure}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth, height=3.2in]{images/result-examples/pose/errors/multiwarp-stack.png}
-    \caption{Instantaneous absolute errors when \textbf{volumetric stacks} are the input method.}
-\end{figure}
-
 
 
 \begin{figure}[H]
@@ -119,7 +96,7 @@ We carry this expectation because this variant of the pipeline generates a stron
     \subfloat[Volumetric Images]{
         \includegraphics[height=2in]{images/result-examples/pose/trajectories/multiwarp/mw-stack-16.png}
     }
-    \caption{Estimated and true trajectories for input sequence 16.}
+    \caption[Estimated and true trajectories for input sequence 16 using light field reconstruction]{Estimated and true trajectories for input sequence 16.}
     \setcounter{subfigure}{0}
     \subfloat[Tiled EPIs]{
         \includegraphics[height=2in]{images/result-examples/pose/trajectories/multiwarp/mw-epi-44.png}
@@ -130,7 +107,7 @@ We carry this expectation because this variant of the pipeline generates a stron
     \subfloat[Volumetric Images]{
         \includegraphics[height=2in]{images/result-examples/pose/trajectories/multiwarp/mw-stack-44.png}
     }
-    \caption{Estimated and true trajectories for input sequence 44.}
+    \caption[Estimated and true trajectories for input sequence 44 using light field reconstruction]{Estimated and true trajectories for input sequence 44.}
     \setcounter{subfigure}{0}
 \end{figure}
 
@@ -141,7 +118,7 @@ We carry this expectation because this variant of the pipeline generates a stron
         \toprule
         Input Method        & Absolute Instantaneous Error (mm)  & Cumulative Error (mm)  \\
         \midrule 
-        Tiled EPI Polar Images & \textbf{7.61} & \textbf{50.61} \\
+        Tiled EPIs & \textbf{7.61} & \textbf{50.61} \\
         Focal Stacks & 9.71 & 73.40 \\
         Volumetric Stacks & 10.50 & 110.04 \\
         \bottomrule
@@ -156,19 +133,19 @@ Importantly, we compare our results to the monocular approach using the algorith
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth, height=3in]{images/result-examples/pose/errors/singlewarp-stack.png}
-    \caption{Instantaneous absolute errors when using \textbf{monocular imagery}.}
+    \includegraphics[width=\textwidth]{images/result-examples/pose/errors/singlewarp-stack.png}
+    \caption[Instantaneous errors for monocular imagery]{Instantaneous absolute errors when using \textbf{monocular imagery}.}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \subfloat[Sequence 16]{
-        \includegraphics[height=2.1in]{images/result-examples/pose/trajectories/monocular/monocular-16.png}
+        \includegraphics[height=2.7in]{images/result-examples/pose/trajectories/monocular/monocular-16.png}
     }
     \subfloat[Sequence 44]{
-        \includegraphics[height=2.1in]{images/result-examples/pose/trajectories/monocular/monocular-44.png}
+        \includegraphics[height=2.7in]{images/result-examples/pose/trajectories/monocular/monocular-44.png}
     }
-    \caption{Estimated and true trajectories using monocular imagery.}
+    \caption[Estimated and true trajectories for input sequences 16 and 44, using monocular imagery]{Estimated and true trajectories using monocular imagery.}
     \setcounter{subfigure}{0}
 \end{figure}
 
@@ -177,22 +154,27 @@ Importantly, we compare our results to the monocular approach using the algorith
 \subsection{Comparison Between Approaches and Summary}
 
 \begin{figure}[H]
-    \includegraphics[width=\textwidth]{images/result-examples/bargraphs/iate-vs-inputmethod.pdf}
+    \includegraphics[width=\textwidth]{images/result-examples/bargraphs/iate-vs-inputmethod2.pdf}
     \caption[Instantaneous translational errors vs. input methods.]{We find that in terms of translational error, the light field reconstruction pipeline has an edge over the single-view warp variant in all three cases. Additionally, using tiled EPI's demonstrates the smallest translational error of the three input methods.}
 \end{figure}
 \begin{figure}[H]
-    \includegraphics[width=\textwidth]{images/result-examples/bargraphs/cte-vs-inputmethod.pdf}
+    \includegraphics[width=\textwidth]{images/result-examples/bargraphs/cte-vs-input-method2.pdf}
     \caption[Cumulative translational errors vs. input methods.]{Similarly, we find that over the course of an entire video-sequence, tiled EPI's once again outperform all other input strategies. Over an entire video-sequence, the light field reconstruction pipeline generally outperforms the single-warp pipeline.}
 \end{figure}
 \begin{figure}[H]
-    \includegraphics[width=\textwidth]{images/result-examples/bargraphs/iare-vs-input-method.pdf}
-    \caption{We find that in rotational terms, light-field-reconstruction far outperforms the single-view-reconstruction pipeline. Similarly, we find that once again, the tiled EPI insertion strategy exhibits the smallest error in terms of rotation on our validation dataset.}
+    \includegraphics[width=\textwidth]{images/result-examples/bargraphs/iare-vs-input-method2.pdf}
+    \caption[Instantaneous rotational error vs. input methods.]{We find that in rotational terms, light-field-reconstruction far outperforms the single-view-reconstruction pipeline. Similarly, we find that once again, the tiled EPI insertion strategy exhibits the smallest error in terms of rotation on our validation dataset.}
 \end{figure}
 \section{Depth and Photometric Reconstruction}
 
 Aside from pose predictions and trajectories, our pipeline also generates depth-map predictions. In this section, we evaluate these outputs. Because our data acquisition methodology did not include the collection of ground-truth depth data, we must find more creative ways of evaluating depth. One way we can do this is by inspecting the visual quality of the depth maps, observing the artifacts and details resolved. For example, in the depth maps shown, we include a particularly challenging scenario that includes a wire-frame model of a flamingo. 
 
-Another way we can evaluate the quality of our depth maps is to compare the photometric loss from image synthesis. Comparing the synthesised image with the ground-truth image, we can compute a difference-image which shows the magnitude of the error in rendering the synthesised image.
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{images/result-examples/bargraphs/photometric-error-vs-inputmethod2.pdf}
+    \caption[Photometric reconstruction error vs. input methods]{The use of light-field-reconstruction to supervise the learning process consistently outperforms single-view reconstruction in terms of photometric error, for all of our tested input methods.}
+\end{figure}
+
+Another way we can evaluate the quality of our depth maps is to compare the photometric loss from image synthesis. Comparing the synthesised image with the ground-truth image, we can compute a difference-image which shows the magnitude of the error in rendering the synthesised image. Photometric error is measured as the difference between the ground truth pixel intensity, and the pixel intensity in the synthesised image, meaning that we can also summarise photometric loss as a single number, which is shown in Figure 5.12 - comparing different input methods.
 
 
 \subsection{Single-View Reconstruction Approach}
@@ -377,7 +359,7 @@ Another way we can evaluate the quality of our depth maps is to compare the phot
 
 
 \subsection{Monocular Approach}
-A useful comparison to make, is to the existing monocular approach. We observe from the following depth estimates that far less detail is resolved and that the depth maps appear much smoother. This is to be expected, as no 3D information is preserved in a 2D image, meaning that only learned 2D features can be used to infer depth. 
+ We observe from the following depth estimates that far less detail is resolved and that the depth maps appear much smoother, when monocular imagery is used. This is to be expected, as no 3D information is preserved in a 2D image, meaning that only learned 2D features can be used to infer depth. 
 
 \begin{figure}[H]
     \centering
@@ -432,7 +414,8 @@ A useful comparison to make, is to the existing monocular approach. We observe f
     \setcounter{subfigure}{0}
 \end{figure}
 
-\subsection{Inspecting the Photometric Warp}
+
+\subsection{Qualitative Analysis}
 
 Another useful result for inspection is the \textit{difference image} - this shows the pixel-wise difference between the photometrically warped output of our algorithm, and the target image. Inspecting the two images side-by-side and discerning the difference is a challenging task, and so with the aid of the difference image we make the difference between the two images clearer.
 
@@ -480,12 +463,45 @@ Below, we show some examples of the target image (the image to be reconstructed)
 
 Notably, we observe that the reconstructed image exhibits reduced clarity compared to the target image. Not unexpectedly, we find that the largest errors occur around 3D depth discontinuities - where occluders coming into and out-of view affect the correctness of our image-based sampling strategy. Similarly, textured regions of the image also exhibit heavy losses, as even small errors in the pose and depth estimate exacerbate the photometric warp error around these regions.
 
-\subsection{Comparison Between Approaches and Summary}
 
-\begin{figure}
-\includegraphics[width=\textwidth]{images/result-examples/bargraphs/photometric-error-vs-inputmethod.pdf}
-\caption{The use of light-field-reconstruction to supervise the learning process consistently outperforms single-view reconstruction in terms of photometric error, for all of our tested input methods.}
-\end{figure}
+\newpage
+\section{Summary of Results}
+
+Table 5.3 is a summary of results from this chapter, including odometry and photometric errors. Algorithmic bandwidth is an important consideration in real-time systems such as robotics, and so we also report the computational runtime for both inference and training. Computational runtimes are reported for Python code running on an Intel i5 4460 CPU at 3.2 GHz, with tensor computations taking place on a GeForce GTX 1050Ti GPU. The following acronyms are used in the table headings.
+
+\begin{itemize}
+    \item {AITE: Absolute instantaneous translational error}
+    \item {AIRE: Absolute instantaneous rotational error}
+    \item {CE: Cumulative translational error}
+    \item {PWE: Photometric warp error}
+\end{itemize}
+
+
+\begin{table}[htbp]
+    \caption{Summary of Odometry and Photometric Warp Errors, and Computational Runtimes}
+    \centering
+    \begin{tabular}{@{}lcccccc@{}}
+        \toprule
+        Input Method       & AITE (mm) & AIRE (mm) & CE (mm)   & PWE  & Inference (ms) & Training (hours) \\
+        \midrule 
+        \multicolumn{3}{l}{\textit{Single View Reconstruction Pipeline}}\\
+        Tiled EPIs & 9.64 & 9.96 & 71.38 & 0.1336 & 154 & 17.9 \\
+        Focal Stacks & 9.79 & 10.17 & 104.03  & 0.1378 & 205 & 25.0 \\
+        Volumetric Stacks & 12.17 & 11.42 & 103.47 & 0.1434 & 112 & 17.6\\
+        \midrule 
+        \multicolumn{3}{l}{\textit{Light Field Reconstruction Pipeline}}\\
+        Tiled EPIs & \textbf{7.61} & \textbf{5.49} & \textbf{50.61} & \textbf{0.1179} & 199 & 29.5 \\
+        Focal Stacks & 9.71 & 6.36 & 73.40 & 0.1281 & 264 & 30.4 \\
+        Volumetric Stacks & 10.50 & 7.50 & 110.04 & 0.1282 & 121 & 25.4 \\
+        \midrule 
+        \multicolumn{3}{l}{\textit{Monocular Approach}}\\
+        Monocular Image & 12.90 & 11.40 & 122.23 & 0.1420 & \textbf{110} & \textbf{17.6} \\
+        \bottomrule
+        
+    \end{tabular}
+\end{table}
+
+
 
 
 

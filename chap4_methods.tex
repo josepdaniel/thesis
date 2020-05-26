@@ -9,7 +9,7 @@ In Chapter 3, we saw that previous work has produced a variety of approaches to 
 \begin{figure}[h]
     \centering 
     \includegraphics[width=4.5in]{images/experimentalsetup2.jpg}
-    \caption{The experimental setup utilises a Universal Robots UR5E robotic arm to precisely measure ground-truth pose to allow effective evaluation of the projects visual odometry results.}
+    \caption[Experimental setup with UR5E manipulator and EpiImaging camera module]{The experimental setup utilises a Universal Robots UR5E robotic arm to precisely measure ground-truth pose to allow effective evaluation of the projects visual odometry results.}
 \end{figure}
 
 Important to this work is a strong evaluation framework. Existing datasets such as KITTI and CityScapes benefit from state-of-the-art sensor suites including inertial sensors and lidar, allowing researchers to effectively benchmark their results. Similarly, this thesis places a strong emphasis on validation using ground truth data. One of the primary tasks for evaluation is visual odometry, and so ground-truth pose data for each image is a valuable resource. In this project, pose is collected by attaching the camera to a Universal Robots UR5E robotic manipulator, which is capable of sensing to a high degree of accuracy the pose of the end effector. Furthermore, the UR5E is able to perform accurate movements and trajectories with payloads of up to 5 kilograms, making it a suitable robotic mount for the camera. 
@@ -31,7 +31,7 @@ Like \cite{zhou2017unsupervised}, we exploit the properties of a moving camera -
 
 \begin{figure}
     \includegraphics[width=\textwidth]{images/archs/unifiedpipeline.pdf}
-    \caption{Our three main modules work together to estimate what the next frame of video looks like. Using our actual knowledge of what that frame looks like, we compute a photometric loss, which is back-propagated and used to apply gradient updates for the disparity and the pose networks.}
+    \caption[An architecture for unsupervised learning of depth and pose from light fields]{Our three main modules work together to estimate what the next frame of video looks like. Using our actual knowledge of what that frame looks like, we compute a photometric loss, which is back-propagated and used to apply gradient updates for the disparity and the pose networks.}
 \end{figure}
 
 \subsection{Pose Estimation}
@@ -61,7 +61,7 @@ We treat pose estimation as a regression problem, estimating three translational
 
 \begin{figure}
     \includegraphics[width=\textwidth]{images/archs/unifiedarch.pdf}
-    \caption{The PoseNet architecture is a fully convolutional neural network. The input is of shape $H \times W \times N$, and the output shape is $6 \times 1 \times 1$ - one output for each of the 6 degrees of freedom predicted. Similarly, the DispNet architecture is a fully convolutional network that outputs disparity maps at two different scales (shown in red). Skip connections allows the incorporation of both high and low level features in estimating disparity. In the first variant of our algorithm, there is a single output channel, predicting a disparity map aligned with the center view of the camera array. In the second variant, there are $N$ output channels - one for each sub-aperture. These layers are displayed for illustrative purposes only, and are not to scale. }
+    \caption[The PoseNet and DispNet convolutional architectures]{The PoseNet architecture is a fully convolutional neural network. The input is of shape $H \times W \times N$, and the output shape is $6 \times 1 \times 1$ - one output for each of the 6 degrees of freedom predicted. Similarly, the DispNet architecture is a fully convolutional network that outputs disparity maps at two different scales (shown in red). Skip connections allows the incorporation of both high and low level features in estimating disparity. In the first variant of our algorithm, there is a single output channel, predicting a disparity map aligned with the center view of the camera array. In the second variant, there are $N$ output channels - one for each sub-aperture. These layers are displayed for illustrative purposes only, and are not to scale. }
 \end{figure}
 
 % Importantly, the translation and rotation are regressed relative to the \textit{camera} coordinate frame of the first image, whereas the UR5E returns absolute position and orientation in the \textit{world} coordinate frame. To validate our predictions we therefore need to compute the relative translation $P_{t1 \rightarrow t2}$ and rotation $R_{t1 \rightarrow t2}$ of the two images, given their absolute positions $P_{t1}, P_{t2}$ and orientation $R_{t1}, R_{t2}$ in the world frame. Concatenating translation and rotation into a single homogenous transform matrix $T = [R|t]$ allows us compute both relative rotation and translation in a single step, as:
@@ -129,7 +129,6 @@ As described in Chapter 3, the procedure for this is to first project each pixel
 \begin{equation}
     [s_0, t_0, \hat{u}, \hat{v}] = K[R|t]Q. 
 \end{equation}
-
 The pixels $[s_0, t_0, \hat{u}, \hat{v}]$ are subsequently sampled to populate a new array, forming our synthesised image. This transform is equivalent to constructing a 3D model of the scene using our depth values, moving an imaginary camera by $[R|t]$ and taking a virtual snapshot of the scene from this new angle, the snapshot being the resulting photometric warp. \\
 
 \begin{figure}
@@ -146,13 +145,13 @@ The pixels $[s_0, t_0, \hat{u}, \hat{v}]$ are subsequently sampled to populate a
         \includegraphics[width=0.24\textwidth]{images/result-examples/warps/seq51/diff.png}
     }
 
-    \caption{To recreate the target image, we use the depth map to calculate the pixel coordinates of the source image from which to sample. The source image is then sampled using bilinear interpolation to reconstruct the synthesised image. The reconstructed and target image are then compared to calculate the photometric error.}
+    \caption[The bilinear interpolation algorithm used for differentiable image-based rendering]{To recreate the target image, we use the depth map to calculate the pixel coordinates of the source image from which to sample. The source image is then sampled using bilinear interpolation to reconstruct the synthesised image. The reconstructed and target image are then compared to calculate the photometric error.}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{images/interp.pdf}
-    \caption{We use bilinear interpolation as the differentiable sampling process, just as suggested in \cite{zhou2017unsupervised}. To populate each pixel value $p_t$ in the target image, each pixel is projected to its corresponding coordinate in the source image, and sampled using bilinear interpolation.}
+    \caption[How bilinear interpolation is used to populate a target image]{We use bilinear interpolation as the differentiable sampling process, just as suggested in \cite{zhou2017unsupervised}. To populate each pixel value $p_t$ in the target image, each pixel is projected to its corresponding coordinate in the source image, and sampled using bilinear interpolation.}
 \end{figure}
 
 More broadly, the practice we have described here is referred to as `image based rendering', which is a related, but slightly different paradigm from the rasterization, shaders and textures typically used in geometry-based rendering engines. In image based rendering, we instead synthesise viewpoints using existing image data. In a sense, image based rendering simply shuffles the pixels of an existing image around, according to some pre-defined rules. In our case, we derive the shuffling-rules using 3D data inferred by our depth and pose networks. 
@@ -182,20 +181,20 @@ In Chapter 3 we saw that Wang et al. \cite{wang2016lfcnn} sliced the 4D light fi
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{images/fruitfocus.png}
-    \caption{While synthetically changing the focal plane brings different parts of the scene into focus, the trade-off is the aliasing and artifacts that arise. This is especially clear around the boundaries of the fruit shown here - not only are they blurry, but distinct artifacts and ghostlike edges are clearly visible.}
+    \caption[Artifacts from synthetic refocusing]{While synthetically changing the focal plane brings different parts of the scene into focus, the trade-off is the aliasing and artifacts that arise. In this example, we show two synthetically refocussed images, performed using 5 of the 17 available light field samples. The artifacts are especially clear around the boundaries of the fruit shown here - not only are they blurry, but distinct artifacts and ghostlike edges are clearly visible.}
 \end{figure}
 
 \begin{figure}[H]
     \centering 
     \includegraphics[width=6in]{images/epitile_3.png}
     \includegraphics[width=6in]{images/epitile_2.png}
-    \caption{Tiled \textit{U, V} slices (top): this is an intuitive way of slicing the light field, which tiles images from each sub-aperture side-by-side. Tiled \textit{T, V} slices (bottom): somewhat less intuitively, this method instead tiles the vertical epipolar-plane images side-by-side. We call these \textit{wide} EPIs. As shown, the overall dimensionality and shape of the light field is unchanged, we simply present the information in a different order, revealing different encodings of the captured scene. We can also tile the light field as \textit{S, U} slices, stacking them vertically, which we refer to as \textit{tall} EPIs.}
+    \caption[Two different ways of slicing the light field]{Tiled \textit{U, V} slices (top): this is an intuitive way of slicing the light field, which tiles images from each sub-aperture side-by-side. Tiled \textit{T, V} slices (bottom): somewhat less intuitively, this method instead tiles the vertical epipolar-plane images side-by-side. We call these \textit{wide} EPIs. As shown, the overall dimensionality and shape of the light field is unchanged, we simply present the information in a different order, revealing different encodings of the captured scene. We can also tile the light field as \textit{S, U} slices, stacking them vertically, which we refer to as \textit{tall} EPIs.}
 \end{figure}
 
 \begin{figure}[h]
     \centering 
     \includegraphics[width=6in]{images/encoderpipe.png}
-    \caption{Our proposed encoder module which encodes the tiled EPIs, downsampling them to the shape expected by our depth and pose networks. Notably, features which have been learned in \textit{T, V} as well as \textit{S, U} are concatenated with the stacked \textit{U, V} slices (exactly as seen in our first input method.) For brevity, we have only shown a small patch of the tall and wide EPIs, but the reader is reminded that these tilings are in fact very tall, and very wide.}
+    \caption[An encoder module for extracting features from EPIs]{Our proposed encoder module which encodes the tiled EPIs, downsampling them to the shape expected by our depth and pose networks. Notably, features which have been learned in \textit{T, V} as well as \textit{S, U} are concatenated with the stacked \textit{U, V} slices (exactly as seen in our first input method.) For brevity, we have only shown a small patch of the tall and wide EPIs, but the reader is reminded that these tilings are in fact very tall, and very wide.}
 \end{figure}
 
 \newpage
@@ -205,7 +204,7 @@ One challenge we face in ingesting this data, is that both previously described 
 The encoding module consists of one convolutional layer followed by a ReLU activation layer. For the \textit{wide} EPIs we convolve with a kernel of size $N \times N$, and a horizontal stride of $N$. Zero-padding is applied to the top and bottom of the tiled EPI. The effect of this convolution is that the wide EPI is down-sampled with the same output size as a single \textit{U, V} slice. Similarly, we apply an $N \times N$ filter with a vertical stride of $N$ to the tall EPIs, also reducing their shape to that of a \textit{U, V} slice. The resulting feature maps are combined with the \textit{U, V} slices, and provided to our depth and pose networks. Thus, our networks are able to learn features in three different feature spaces. We hypothesise that with this ingestion strategy, our networks are able to learn an approximation for 4D signal processing functions, without the computational overhead of convolving in 4 dimensions, and without the requirement for a complete 2D grid of images.
 
 
-\subsection{Complete Light Field Reconstruction}
+\subsection{Single-View vs. Light Field Reconstruction}
 
 
 
@@ -216,7 +215,7 @@ The modification described here is straightforward, but it sacrifices some flexi
 \begin{figure}[htbp]
     \centering 
     \includegraphics[width=3.5in]{images/relative_subapertures.png}
-    \caption{Given knowledge of how one sub-aperture has moved through space, we can also compute how any other sub-aperture has moved by chaining the transforms in the order shown.}
+    \caption[The relationship between sub-apertures as the light field camera moves through space]{Given knowledge of how one sub-aperture has moved through space, we can also compute how any other sub-aperture has moved by chaining the transforms in the order shown.}
 \end{figure}
 
 Instead of using photometric warp to reconstruct the image of a single sub-aperture, this modification adjusts the pipeline such that instead, we now reconstruct the entire light field. The camera array is a rigid body, meaning that as it rotates and translates through space, the sub-apertures also rotate and translate relative to each other, but in a very well defined way. Say we know the homogenous transform  $T_{a \rightarrow b}$ of sub-aperture $\mathcal{N}$ between two frames of video, we can compute the global transform of any other sub-aperture $\mathcal{M}$ by chaining together the homogenous transforms as shown in Figure 4.9.

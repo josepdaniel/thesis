@@ -11,7 +11,7 @@
 \usepackage{subfig}
 \usepackage{float}
 \usepackage{hyperref}
-% \hypersetup{pdftex,colorlinks=true,allcolors=blue}
+\hypersetup{pdftex,colorlinks=true,allcolors=black}
 \usepackage{hypcap}
 % \renewcommand{\thesubfigure}{\Alph{subfigure}}
 
@@ -43,9 +43,10 @@
 
 \renewcommand{\baselinestretch}{1.5}
 
-\title{Learning Depth and Visual Odometry From Light Fields \\
-\large School of Aeronautical, Mechanical and Mechatronic Engineering \\
+\title{\textbf{Learning Depth and Visual Odometry From Light Fields} \\
+\large School of Aerospace, Mechanical and Mechatronic Engineering \\
 \large The University of Sydney}
+\date{May, 2020}
 
 \author{Joseph Daniel}
 
@@ -53,10 +54,25 @@
 
 \frontmatter
 
+\chapter*{Statement of Contribution}
+
+\begin{itemize}
+  \item I carried out the literature review in order to evaluate existing algorithms and approaches.
+  \item I authored the data acquisition software and collected the dataset of light field video used in this work. 
+  \item With the help of my supervisor Dr. Donald Dansereau, I designed and implemented the novel algorithms described in this work.
+  \item I augmented existing code from Zhou \textit{et al.} \cite{zhou2017unsupervised}, authoring custom components for data-loading, loss computations, and performing inference.
+  \item I carried out the experiments using the proposed algorithm.
+  \item I authored the functions for analysing experimental results, and conducted the analysis myself, with advice provided by my supervisor. 
+  \item I carried out the discussion and conclusion, which are my own, influenced by discussion with my supervisor.
+\end{itemize}
+
+
+\textbf{Joseph Thomas Daniel} 
+
+May 26th, 2020
+
 \maketitle
 
-\chapter*{Declaration of Contribution}
-% I did some things.
 
 \chapter*{Abstract}
 
@@ -74,11 +90,9 @@ Finally, we compare our proposed pipeline to two existing families of visual odo
 
 
 \chapter*{Acknowledgements}
-% Thanks Don.
+I would like to express my gratitude to my supervisor, Dr. Donald Dansereau, for his guidance throughout this thesis project. His encouragement and motivation has inspired my interest in robotics and computational imaging, and his unremitting thoughtfulness has at all times kept me thinking critically. My thanks also to my colleagues in the school of AMME, who have provided consistently valuable feedback in our weekly roundtable discussions and made this thesis all the more enjoyable. 
 
-
-
-
+I would like to also acknowledge my family and friends who have supported me during this thesis, whether through their heartening encouragement or simple acts of homemade food delivery that kept me from burning out. Finally, a special thanks to Josephine for her patience and support in this time of physical isolation - she has consistently shown her compassion and kindness, even though the apartment we share certainly wasn't designed for two to be working from home.
 
 \tableofcontents
 \listoffigures
