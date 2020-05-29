@@ -8,14 +8,14 @@ In Chapter 3, we saw that previous work has produced a variety of approaches to 
 
 \begin{figure}[h]
     \centering 
-    \includegraphics[width=4.5in]{images/experimentalsetup2.jpg}
-    \caption[Experimental setup with UR5E manipulator and EpiImaging camera module]{The experimental setup utilises a Universal Robots UR5E robotic arm to precisely measure ground-truth pose to allow effective evaluation of the projects visual odometry results.}
+    \includegraphics[width=\textwidth]{images/experimentalsetup2.jpg}
+    \caption[Experimental setup with UR5E manipulator and EpiImaging camera module]{The experimental setup utilises a Universal Robots UR5E robotic arm to precisely measure ground-truth pose to allow effective evaluation of the project's visual odometry results.}
 \end{figure}
 
 Important to this work is a strong evaluation framework. Existing datasets such as KITTI and CityScapes benefit from state-of-the-art sensor suites including inertial sensors and lidar, allowing researchers to effectively benchmark their results. Similarly, this thesis places a strong emphasis on validation using ground truth data. One of the primary tasks for evaluation is visual odometry, and so ground-truth pose data for each image is a valuable resource. In this project, pose is collected by attaching the camera to a Universal Robots UR5E robotic manipulator, which is capable of sensing to a high degree of accuracy the pose of the end effector. Furthermore, the UR5E is able to perform accurate movements and trajectories with payloads of up to 5 kilograms, making it a suitable robotic mount for the camera. 
 
 \subsubsection{Manipulator-Camera Interface Adapter}
-The UR5E uses a standard interface plate for attaching end-effectors such as gripping tools. The camera on the other hand, despite its excellent construction, is an early prototype provided by EPIImaging, without a physical adapter interface for the UR5E manipulator. We therefore fabricate our own mount for the device, taking into consideration the camera's ventilation and cabling requirements. A two-piece adapter was designed in SolidWorks and fabricated using a fused deposition modelling (FDM) platform with polylactic acid (PLA) filament. 
+The UR5E uses a standard interface plate for attaching end-effectors such as gripping tools. The camera on the other hand, is an early prototype provided by EPIImaging, without a physical adapter interface for the UR5E manipulator. We therefore fabricated our own mount for the device, taking into consideration the camera's ventilation and cabling requirements, shown in Figure 4.1. A two-piece adapter was designed in SolidWorks and fabricated using a fused deposition modelling (FDM) platform with polylactic acid (PLA) filament. 
 
 \subsubsection{Manipulator Control}
 A client library for communicating with the UR5E was developed in python, establishing a TCP/IP connection with the robot over the local network, allowing both movement commands to be sent to the robot, and feedback data about the end-effector's pose to be streamed back to the client PC. The client library also provides functionality for computing trajectories and corresponding joint angles, using the PyBullet \cite{pybullet2017} physics engine and the known kinematic model. One useful trajectory function from our library procedurally generates waypoints while keeping the camera's field-of-view trained on the scene, using a stringent collision-checking mechanism to enable autonomous data-capture. 
@@ -36,7 +36,7 @@ Like \cite{zhou2017unsupervised}, we exploit the properties of a moving camera -
 
 \subsection{Pose Estimation}
 
-We treat pose estimation as a regression problem, estimating three translational components [X, Y, Z] and three rotational components [Rx, Ry, Rz]. We perform this regressions with a convolutional network, which we call `PoseNet', in line with previous work \cite{zhan2018deepfeature,bian2019consistency,zhou2017unsupervised}. This network architecture is fully convolutional, meaning that in principle, it operates on arbitrarily large or small images. 
+We treat pose estimation as a regression problem, estimating three translational components [X, Y, Z] and three rotational components [Rx, Ry, Rz]. We perform this regressions with a convolutional network, which we call `PoseNet', in line with previous work \cite{zhan2018deepfeature,bian2019consistency,zhou2017unsupervised}. This network architecture is fully convolutional, meaning that in principle, it operates on arbitrarily large or small images. The network architecture is shown in Figure 4.3.
 
 \begin{table}[h]
 
@@ -73,7 +73,7 @@ We treat pose estimation as a regression problem, estimating three translational
 
 \subsection{Depth Estimation}
 
-Depth estimation is similarly modeled as a regression problem, with two output layers - regressing half- and full-scale depth map predictions. The depth estimation module uses the fully-convolutional encoder-decoder `DispNet' architecture \cite{mayer2015dispnet}. Skip connections from the encoder to the decoder mean the decoding layers are able to access both high level features and low level features on either side of the latent space. Prior work \cite{zhou2017unsupervised} has demonstrated that predicting depth maps at multiple scales improves photometric reconstruction error by enforcing some level of local smoothness. In practice, this helps the network learn to predict depth in challenging, textureless regions of the image. 
+Depth estimation is similarly modeled as a regression problem, with two output layers - regressing half- and full-scale depth map predictions. The depth estimation module uses the fully-convolutional encoder-decoder `DispNet' architecture \cite{mayer2015dispnet}. Skip connections from the encoder to the decoder mean the decoding layers are able to access both high level features and low level features on either side of the latent space. Prior work \cite{zhou2017unsupervised} has demonstrated that predicting depth maps at multiple scales improves photometric reconstruction error by enforcing some level of local smoothness. In practice, this helps the network learn to predict depth in challenging, textureless regions of the image. The network architecture is shown in Figure 4.3.
 
 \begin{table}[h]
 
@@ -129,9 +129,9 @@ As described in Chapter 3, the procedure for this is to first project each pixel
 \begin{equation}
     [s_0, t_0, \hat{u}, \hat{v}] = K[R|t]Q. 
 \end{equation}
-The pixels $[s_0, t_0, \hat{u}, \hat{v}]$ are subsequently sampled to populate a new array, forming our synthesised image. This transform is equivalent to constructing a 3D model of the scene using our depth values, moving an imaginary camera by $[R|t]$ and taking a virtual snapshot of the scene from this new angle, the snapshot being the resulting photometric warp. \\
+The pixels $[s_0, t_0, \hat{u}, \hat{v}]$ are subsequently sampled to populate a new array, forming our synthesised image. This transform is equivalent to constructing a 3D model of the scene using our depth values, moving an imaginary camera by $[R|t]$ and taking a virtual snapshot of the scene from this new angle, the snapshot being the resulting photometric warp. The steps are shown in Figures 4.4 and 4.5.\\
 
-\begin{figure}
+\begin{figure}[h]
     \subfloat[Target Image]{
         \includegraphics[width=0.24\textwidth]{images/result-examples/warps/seq51/input.png}
     }
@@ -148,7 +148,7 @@ The pixels $[s_0, t_0, \hat{u}, \hat{v}]$ are subsequently sampled to populate a
     \caption[The bilinear interpolation algorithm used for differentiable image-based rendering]{To recreate the target image, we use the depth map to calculate the pixel coordinates of the source image from which to sample. The source image is then sampled using bilinear interpolation to reconstruct the synthesised image. The reconstructed and target image are then compared to calculate the photometric error.}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/interp.pdf}
     \caption[How bilinear interpolation is used to populate a target image]{We use bilinear interpolation as the differentiable sampling process, just as suggested in \cite{zhou2017unsupervised}. To populate each pixel value $p_t$ in the target image, each pixel is projected to its corresponding coordinate in the source image, and sampled using bilinear interpolation.}
@@ -175,37 +175,36 @@ The most straightforward of our three methods, this technique involves taking \t
 \subsubsection{Focal Stacks}
 Focal stacks are constructed as a superposition of 2D images from several sub-apertures, creating interference in regions of the image that are `out-of-focus', while keeping `in-focus' elements of the image crisp. A focal stack specifically encodes depth in the form of interference at each region of the image. Thus, we might expect a CNN trained on this type of imagery to learn to decode in- and out-of-focus parts of the image, using this information to estimate depth and pose. Importantly, we must consider that our spatial sampling rate (distance between sub-apertures) is significantly lower than our angular sampling rate (distance between pixels). As a result our focal stacks exhibit significant aliasing effects which may impact training.
 
-\subsubsection{Tiled Epipolar Plane Images}
-In Chapter 3 we saw that Wang et al. \cite{wang2016lfcnn} sliced the 4D light field in two different ways, first as perspective-projection images, and secondly as orthographic-projection images. By showing slices in \textit{S, T} and \textit{U, V}, Wang et al. suggests that a convolutional network is able to learn to approximate 4D signal processing functions without the computational overhead of convolving in 4 dimensions. Due to the specific constraints of the camera array being used (and indeed of any camera array not arranged as a regular grid of sub-apertures), there are challenges associated with slicing our light field data as orthographic images. We suggest that there is indeed another meaningful way of slicing the 4D light field into 2D arrays - namely as epipolar plane images. As we discussed in Chapter 2, epipolar plane images are \textit{S, U} or \textit{T, V} slices of the light field, encoding depth and occlusion in the slope of their characteristic sheared lines. With our input strategy, we tile \textit{T, V} slices side-by-side, and \textit{S, U} slices top-to-bottom. 
-
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{images/fruitfocus.png}
+    \includegraphics[width=\textwidth]{images/fruitfocus.png}
     \caption[Artifacts from synthetic refocusing]{While synthetically changing the focal plane brings different parts of the scene into focus, the trade-off is the aliasing and artifacts that arise. In this example, we show two synthetically refocussed images, performed using 5 of the 17 available light field samples. The artifacts are especially clear around the boundaries of the fruit shown here - not only are they blurry, but distinct artifacts and ghostlike edges are clearly visible.}
 \end{figure}
 
-\begin{figure}[H]
+\subsubsection{Tiled Epipolar Plane Images}
+In Chapter 3 we saw that Wang et al. \cite{wang2016lfcnn} sliced the 4D light field in two different ways, first as perspective-projection images, and secondly as orthographic-projection images. By showing slices in \textit{S, T} and \textit{U, V}, Wang et al. suggests that a convolutional network is able to learn to approximate 4D signal processing functions without the computational overhead of convolving in 4 dimensions. Due to the specific constraints of the camera array being used (and indeed of any camera array not arranged as a regular grid of sub-apertures), there are challenges associated with slicing our light field data as orthographic images. We suggest that there is indeed another meaningful way of slicing the 4D light field into 2D arrays - namely as epipolar plane images. As we discussed in Chapter 2, epipolar plane images are \textit{S, U} or \textit{T, V} slices of the light field, encoding depth and occlusion in the slope of their characteristic sheared lines. With our input strategy, we tile \textit{T, V} slices side-by-side, and \textit{S, U} slices top-to-bottom. 
+
+One challenge we face in ingesting this data, is that both previously described methods have input shapes $H \times W$. The tiled images from Figure 4.7 on the other hand have shape $H \times (W \times N)$ where $N$ is the number of sampled sub-apertures. In practice, these images are much wider than either of our previous input formats. We therefore suggest the use of an additional convolutional encoding module that down-samples the tiled EPIs to the shape expected by our depth and pose networks.
+
+
+\begin{figure}[h]
     \centering 
     \includegraphics[width=6in]{images/epitile_3.png}
     \includegraphics[width=6in]{images/epitile_2.png}
     \caption[Two different ways of slicing the light field]{Tiled \textit{U, V} slices (top): this is an intuitive way of slicing the light field, which tiles images from each sub-aperture side-by-side. Tiled \textit{T, V} slices (bottom): somewhat less intuitively, this method instead tiles the vertical epipolar-plane images side-by-side. We call these \textit{wide} EPIs. As shown, the overall dimensionality and shape of the light field is unchanged, we simply present the information in a different order, revealing different encodings of the captured scene. We can also tile the light field as \textit{S, U} slices, stacking them vertically, which we refer to as \textit{tall} EPIs.}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering 
-    \includegraphics[width=6in]{images/encoderpipe.png}
+    \includegraphics[width=6in]{images/encoderpipewithinset.png}
     \caption[An encoder module for extracting features from EPIs]{Our proposed encoder module which encodes the tiled EPIs, downsampling them to the shape expected by our depth and pose networks. Notably, features which have been learned in \textit{T, V} as well as \textit{S, U} are concatenated with the stacked \textit{U, V} slices (exactly as seen in our first input method.) For brevity, we have only shown a small patch of the tall and wide EPIs, but the reader is reminded that these tilings are in fact very tall, and very wide.}
 \end{figure}
 
-\newpage
-
-One challenge we face in ingesting this data, is that both previously described methods have input shapes $H \times W$. The tiled images from Figure 2.4 on the other hand have shape $H \times (W \times N)$ where $N$ is the number of sampled sub-apertures. In practice, these images are much wider than either of our previous input formats. We therefore suggest the use of an additional convolutional encoding module that down-samples the tiled EPIs to the shape expected by our depth and pose networks.
 
 The encoding module consists of one convolutional layer followed by a ReLU activation layer. For the \textit{wide} EPIs we convolve with a kernel of size $N \times N$, and a horizontal stride of $N$. Zero-padding is applied to the top and bottom of the tiled EPI. The effect of this convolution is that the wide EPI is down-sampled with the same output size as a single \textit{U, V} slice. Similarly, we apply an $N \times N$ filter with a vertical stride of $N$ to the tall EPIs, also reducing their shape to that of a \textit{U, V} slice. The resulting feature maps are combined with the \textit{U, V} slices, and provided to our depth and pose networks. Thus, our networks are able to learn features in three different feature spaces. We hypothesise that with this ingestion strategy, our networks are able to learn an approximation for 4D signal processing functions, without the computational overhead of convolving in 4 dimensions, and without the requirement for a complete 2D grid of images.
 
 
 \subsection{Single-View vs. Light Field Reconstruction}
-
 
 
 In this section, we modify our pipeline to more-fully take advantage of the information in the light field. One important weakness of the pipeline we have described so far, is that there are no constraints on our networks to estimate scale with the same magnitude between video frames. Given three frames of video of the same scene, and stable camera motion, the depth network will happily estimate a room that is twice as large in the second pair of frames than the first, if of course the pose network also estimates a twice-as-large translation. This is the scale ambiguity that we have discussed in Chapter 2. With the modifications suggested in this section, we take advantage of the fact that we have multiple sub-apertures capturing the scene at the same time, using this knowledge to enforce scale consistency across video frames. 
